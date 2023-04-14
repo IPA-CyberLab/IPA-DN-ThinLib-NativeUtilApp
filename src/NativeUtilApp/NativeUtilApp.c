@@ -1021,6 +1021,100 @@ void vdi_admin_util(UINT num, char **arg)
 	}
 }
 
+void proxykeepalive(UINT num, char **arg)
+{
+	Print("Proxy keepalive function\n\n");
+
+	UINT proxy_auth_error_counter = 0;
+
+	while (true)
+	{
+		BUF *ini_buf = ReadDump("@proxykeepalive.txt");
+		UINT interval = 0;
+
+		if (ini_buf != NULL)
+		{
+			LIST *ini = ReadIni(ini_buf);
+
+			char *proxy_host = IniStrValue(ini, "ProxyHost");
+			UINT proxy_port = IniIntValue(ini, "ProxyPort");
+			interval = IniIntValue(ini, "IntervalMsecs");
+			char *target_url = IniStrValue(ini, "TargetUrl");
+			UINT giveup_counter = IniIntValue(ini, "GiveupProxyAuthErrorCount");
+			UINT flags = IniIntValue(ini, "Flags");
+
+			if (IsFilledStr(proxy_host) && proxy_port != 0 && IsFilledStr(target_url))
+			{
+				INTERNET_SETTING setting = CLEAN;
+
+				StrCpy(setting.ProxyHostName, sizeof(setting.ProxyHostName), proxy_host);
+				setting.ProxyPort = proxy_port;
+				setting.ProxyType = PROXY_HTTP;
+				StrCpy(setting.ProxyUserAgent, sizeof(setting.ProxyUserAgent), DEFAULT_USER_AGENT);
+
+				URL_DATA data = CLEAN;
+				ParseUrl(&data, target_url, false, NULL);
+
+				UINT err = ERR_NO_ERROR;
+
+				BUF *error_buf = NewBuf();
+
+				bool is_server_error = false;
+
+				BUF *buf = HttpRequestEx6(&data, &setting, 0, 0, &err, false, NULL, NULL, NULL, NULL, 0,
+					NULL, 10000000, NULL, NULL, NULL,
+					false, false, error_buf, &is_server_error, flags, NULL, 0);
+
+				if (buf == NULL)
+				{
+					UniPrint(L"HttpRequestEx6 error. Code = %u, ErrorStr = %s\n", err, _E(err));
+
+					SeekBufToEnd(error_buf);
+					WriteBufChar(error_buf, 0);
+
+					Print("Error details: %s\n", error_buf->Buf);
+
+					if (err == ERR_PROXY_ERROR)
+					{
+						proxy_auth_error_counter++;
+						Print("proxy_auth_error_counter = %u\n", proxy_auth_error_counter);
+					}
+
+					if (giveup_counter != 0 && proxy_auth_error_counter >= giveup_counter)
+					{
+						Print("proxy_auth_error_counter (%u) >= giveup_counter (%u)\n", proxy_auth_error_counter, giveup_counter);
+						Print("Give up.\n");
+						SleepThread(INFINITE);
+					}
+				}
+				else
+				{
+					Print("Ok. Return size = %u\n", buf->Size);
+				}
+
+				FreeBuf(error_buf);
+
+				FreeBuf(buf);
+			}
+
+			FreeIni(ini);
+			FreeBuf(ini_buf);
+		}
+
+		if (interval == 0)
+		{
+			interval = 1000;
+		}
+
+		interval = GenRandInterval2(interval, 0);
+
+		Print("Waiting for %u msecs...\n", interval);
+		SleepThread(interval);
+
+		Print("\n");
+	}
+}
+
 void hello_test(UINT num, char **arg)
 {
 	Print("Hello World!\n");
@@ -1031,7 +1125,7 @@ void hello_test(UINT num, char **arg)
 
 void test(UINT num, char **arg)
 {
-	vdi_admin_main(0);
+	proxykeepalive(0, NULL);
 }
 
 // テスト関数一覧定義
@@ -1057,6 +1151,7 @@ TEST_LIST test_list[] =
 
 	{"hello", hello_test},
 	{"vdi", vdi_admin_util},
+	{"proxykeepalive", proxykeepalive},
 };
 
 // テスト関数

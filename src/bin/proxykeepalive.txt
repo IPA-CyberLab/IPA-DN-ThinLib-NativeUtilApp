@@ -1,0 +1,10 @@
+﻿ProxyHost                   10.20.1.162
+ProxyPort                   3128
+IntervalMsecs               2000
+TargetUrl                   https://www.google.com/
+ProxyUsername               aaa
+ProxyPassword               bbb
+GiveupProxyAuthErrorCount   2
+Flags                       2
+
+
