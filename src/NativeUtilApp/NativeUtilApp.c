@@ -1081,7 +1081,7 @@ void proxykeepalive(UINT num, char **arg)
 
 					Print("Error details: %s\n", error_buf->Buf);
 
-					if (err == ERR_PROXY_ERROR)
+					if (err == ERR_PROXY_AUTH_FAILED)
 					{
 						proxy_auth_error_counter++;
 						Print("proxy_auth_error_counter = %u\n", proxy_auth_error_counter);
