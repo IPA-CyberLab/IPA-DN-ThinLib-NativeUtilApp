@@ -964,6 +964,7 @@ void udprand_test(UINT num, char** arg)
 
 void vdi_admin_main(UINT count)
 {
+#ifdef OS_WIN32
 	DS_WIN32_RDP_POLICY pol = CLEAN;
 
 	pol.HasValidValue = true;
@@ -999,6 +1000,7 @@ void vdi_admin_main(UINT count)
 			Print("DsWin32SetRdpPolicy error.\n");
 		}
 	}
+#endif // OS_WIN32
 }
 
 void vdi_admin_util(UINT num, char **arg)
