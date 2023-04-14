@@ -1045,6 +1045,8 @@ void proxykeepalive(UINT num, char **arg)
 			UINT giveup_counter = IniIntValue(ini, "GiveupProxyAuthErrorCount");
 			UINT flags = IniIntValue(ini, "Flags");
 			char *proxy_ua = IniStrValue(ini, "ProxyUserAgent");
+			char *proxy_username = IniStrValue(ini, "ProxyUsername");
+			char *proxy_password = IniStrValue(ini, "ProxyPassword");
 
 			if (IsFilledStr(proxy_host) && proxy_port != 0 && IsFilledStr(target_url))
 			{
@@ -1058,6 +1060,9 @@ void proxykeepalive(UINT num, char **arg)
 				{
 					StrCpy(setting.ProxyUserAgent, sizeof(setting.ProxyUserAgent), proxy_ua);
 				}
+
+				StrCpy(setting.ProxyUsername, sizeof(setting.ProxyUsername), proxy_username);
+				StrCpy(setting.ProxyPassword, sizeof(setting.ProxyPassword), proxy_password);
 
 				URL_DATA data = CLEAN;
 				ParseUrl(&data, target_url, false, NULL);
