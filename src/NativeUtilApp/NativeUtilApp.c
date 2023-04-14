@@ -1086,12 +1086,12 @@ void proxykeepalive(UINT num, char **arg)
 					SeekBufToEnd(error_buf);
 					WriteBufChar(error_buf, 0);
 
-					Print("Error details: %s\n", error_buf->Buf);
+					//Print("Error details: %s\n", error_buf->Buf);
 
-					if (IsFilledStr(redirect_url))
-					{
-						Print("redirect_url: %s\n", redirect_url);
-					}
+					//if (IsFilledStr(redirect_url))
+					//{
+					//	Print("redirect_url: %s\n", redirect_url);
+					//}
 
 					if (err == ERR_PROXY_AUTH_FAILED)
 					{
@@ -1129,8 +1129,6 @@ void proxykeepalive(UINT num, char **arg)
 
 		Print("Waiting for %u msecs...\n", interval);
 		SleepThread(interval);
-
-		Print("\n");
 	}
 }
 
