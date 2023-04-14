@@ -1073,9 +1073,11 @@ void proxykeepalive(UINT num, char **arg)
 
 				bool is_server_error = false;
 
+				char redirect_url[MAX_SIZE] = CLEAN;
+
 				BUF *buf = HttpRequestEx6(&data, &setting, 0, 0, &err, false, NULL, NULL, NULL, NULL, 0,
 					NULL, 10000000, NULL, NULL, NULL,
-					false, false, error_buf, &is_server_error, flags, NULL, 0);
+					false, false, error_buf, &is_server_error, flags, redirect_url, sizeof(redirect_url));
 
 				if (buf == NULL)
 				{
@@ -1085,6 +1087,11 @@ void proxykeepalive(UINT num, char **arg)
 					WriteBufChar(error_buf, 0);
 
 					Print("Error details: %s\n", error_buf->Buf);
+
+					if (IsFilledStr(redirect_url))
+					{
+						Print("redirect_url: %s\n", redirect_url);
+					}
 
 					if (err == ERR_PROXY_AUTH_FAILED)
 					{
