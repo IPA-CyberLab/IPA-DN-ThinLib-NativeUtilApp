@@ -1146,7 +1146,8 @@ void test(UINT num, char **arg)
 
 	while (true)
 	{
-		MsWtsTest1();
+		//MsWtsTest1();
+		Print("%u\n", MsWtsOneOrMoreUnlockedSessionExists());
 		SleepThread(1000);
 	}
 #endif // OS_WIN32
