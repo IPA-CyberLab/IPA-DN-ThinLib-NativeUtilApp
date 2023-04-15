@@ -1130,7 +1130,15 @@ void hello_test(UINT num, char **arg)
 
 void test(UINT num, char **arg)
 {
-	proxykeepalive(0, NULL);
+#ifdef OS_WIN32
+
+	while (true)
+	{
+		MsWtsTest1();
+		SleepThread(1000);
+	}
+#endif // OS_WIN32
+
 }
 
 // テスト関数一覧定義
