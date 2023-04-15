@@ -1,9 +1,36 @@
 ﻿
-# Protocol  Direction  State        Action  RemoteIP   RemotePort  LocalPort
-TCP         Out        Established  Permit  0.0.0.0/0  443         1-65535
-
-TCP         Out        New          Deny    0.0.0.0/0  443         1-65535
+# Protocol  Direction  Type  Action  RemoteIP   RemotePort  LocalPort
 
 
+tcp         out        new   deny    any4       *           *
+tcp         out        new   deny    any6       *           *
+
+udp         out        all   permit  any4       53          *
+udp         out        all   permit  any4       67          *
+udp         out        all   deny    any4       *           *
+
+udp         out        all   permit  any6       547         *
+udp         out        all   deny    any6       *           *
+
+
+
+tcp         in         new   permit  any4       *           3333
+tcp         in         new   deny    any4       *           *
+
+tcp         in         new   permit  any6       *           3333
+tcp         in         new   deny    any6       *           *
+
+udp         in         all   permit  any4       *           161
+udp         in         all   deny    any4       *           *
+
+udp         in         all   permit  any6       *           161
+udp         in         all   deny    any6       *           *
+
+
+icmp        in         all   permit  any4
+icmp        in         all   permit  any6
+
+icmp        out        all   permit  any4
+icmp        out        all   permit  any6
 
 
