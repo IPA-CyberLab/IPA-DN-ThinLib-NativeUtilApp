@@ -964,6 +964,7 @@ void udprand_test(UINT num, char** arg)
 
 void vdi_admin_main(UINT count)
 {
+#ifdef OS_WIN32
 	DS_WIN32_RDP_POLICY pol = CLEAN;
 
 	pol.HasValidValue = true;
@@ -999,6 +1000,7 @@ void vdi_admin_main(UINT count)
 			Print("DsWin32SetRdpPolicy error.\n");
 		}
 	}
+#endif // OS_WIN32
 }
 
 void vdi_admin_util(UINT num, char **arg)
@@ -1043,6 +1045,8 @@ void proxykeepalive(UINT num, char **arg)
 			UINT giveup_counter = IniIntValue(ini, "GiveupProxyAuthErrorCount");
 			UINT flags = IniIntValue(ini, "Flags");
 			char *proxy_ua = IniStrValue(ini, "ProxyUserAgent");
+			char *proxy_username = IniStrValue(ini, "ProxyUsername");
+			char *proxy_password = IniStrValue(ini, "ProxyPassword");
 
 			if (IsFilledStr(proxy_host) && proxy_port != 0 && IsFilledStr(target_url))
 			{
@@ -1057,6 +1061,9 @@ void proxykeepalive(UINT num, char **arg)
 					StrCpy(setting.ProxyUserAgent, sizeof(setting.ProxyUserAgent), proxy_ua);
 				}
 
+				StrCpy(setting.ProxyUsername, sizeof(setting.ProxyUsername), proxy_username);
+				StrCpy(setting.ProxyPassword, sizeof(setting.ProxyPassword), proxy_password);
+
 				URL_DATA data = CLEAN;
 				ParseUrl(&data, target_url, false, NULL);
 
@@ -1066,9 +1073,11 @@ void proxykeepalive(UINT num, char **arg)
 
 				bool is_server_error = false;
 
+				char redirect_url[MAX_SIZE] = CLEAN;
+
 				BUF *buf = HttpRequestEx6(&data, &setting, 0, 0, &err, false, NULL, NULL, NULL, NULL, 0,
 					NULL, 10000000, NULL, NULL, NULL,
-					false, false, error_buf, &is_server_error, flags, NULL, 0);
+					false, false, error_buf, &is_server_error, flags, redirect_url, sizeof(redirect_url));
 
 				if (buf == NULL)
 				{
@@ -1077,9 +1086,14 @@ void proxykeepalive(UINT num, char **arg)
 					SeekBufToEnd(error_buf);
 					WriteBufChar(error_buf, 0);
 
-					Print("Error details: %s\n", error_buf->Buf);
+					//Print("Error details: %s\n", error_buf->Buf);
 
-					if (err == ERR_PROXY_ERROR)
+					//if (IsFilledStr(redirect_url))
+					//{
+					//	Print("redirect_url: %s\n", redirect_url);
+					//}
+
+					if (err == ERR_PROXY_AUTH_FAILED)
 					{
 						proxy_auth_error_counter++;
 						Print("proxy_auth_error_counter = %u\n", proxy_auth_error_counter);
@@ -1115,8 +1129,6 @@ void proxykeepalive(UINT num, char **arg)
 
 		Print("Waiting for %u msecs...\n", interval);
 		SleepThread(interval);
-
-		Print("\n");
 	}
 }
 
