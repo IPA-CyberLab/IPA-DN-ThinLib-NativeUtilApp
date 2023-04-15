@@ -1,0 +1,9 @@
+﻿
+# Protocol  Direction  State        Action  RemoteIP   RemotePort  LocalPort
+TCP         Out        Established  Permit  0.0.0.0/0  443         1-65535
+
+TCP         Out        New          Deny    0.0.0.0/0  443         1-65535
+
+
+
+

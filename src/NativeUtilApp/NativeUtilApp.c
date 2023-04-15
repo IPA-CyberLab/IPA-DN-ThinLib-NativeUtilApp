@@ -1136,19 +1136,30 @@ void hello_test(UINT num, char **arg)
 {
 	Print("Hello World!\n");
 	Print("Exiting...");
-
+	
 	exit(0);
 }
+
+void DuWfpTest();
+
+void DuWfpTest2();
 
 void test(UINT num, char **arg)
 {
 #ifdef OS_WIN32
 
-	while (true)
+	if (true)
 	{
-		//MsWtsTest1();
-		Print("%u\n", MsWtsOneOrMoreUnlockedSessionExists());
-		SleepThread(1000);
+		DuWfpTest2();
+	}
+	else
+	{
+		while (true)
+		{
+			//MsWtsTest1();
+			Print("%u\n", MsWtsOneOrMoreUnlockedSessionExists());
+			SleepThread(1000);
+		}
 	}
 #endif // OS_WIN32
 
