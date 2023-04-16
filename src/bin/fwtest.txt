@@ -26,8 +26,8 @@ ReportMailPassword
 ReportMailSslType   0
 ReportMailAuthType  0
 
-ReportMailFrom      noreply@xxx.co.jp
-ReportMailTo        xxx@gmail.com
+ReportMailFrom      noreply@softether.co.jp
+ReportMailTo        dnobori.pc@gmail.com
 ReportMailSubjectPrefix [ThinFirewall $hostname]
 
 ReportSyslogHost    10.21.2.168
@@ -116,7 +116,41 @@ EnableFirewall      true
 
 
 ## ----------------------------------------------------------------------
-## 第 0.1 部: 例外許可の設定 (発信方向)
+## 第 0.1 部: 例外許可の設定 (信頼されているプログラム)
+## 'trusted_client' または 'trusted_client' に続いて
+## EXE ファイルのフルパスを記入すると、
+## そのプログラムは信頼されているプログラムとみなし、
+## ファイアウォールルールを適用しない。
+## 
+## trusted_client: 当該プロセスからの TCP および UDP 通信の発信を許可する。
+##                 (クライアントとして振る舞うことを許可する。)
+## trusted_server: 当該プロセスにおける TCP および UDP 通信の着信を許可する。
+##                 (サーバーとして振る舞うことを許可する。)
+
+# Windows の重要なシステムサービス群
+# (Windows Update、AD ドメインログオン、クラウド ID 認証、ライセンス認証
+#  等の通信に必要)
+trusted_client c:\Windows\System32\svchost.exe
+trusted_client C:\WINDOWS\system32\sppsvc.exe
+trusted_client C:\WINDOWS\system32\sppextcomobj.exe
+trusted_client c:\Windows\System32\lsass.exe
+trusted_client C:\Program Files\Windows Defender\MpCmdRun.exe
+
+# Zscaler 社のゼロトラスト製品のトンネル通信サービス
+trusted_client C:\Program Files\Zscaler\ZSATunnel\ZSATunnel.exe
+trusted_client C:\Program Files\Zscaler\ZSAService\ZSAService.exe
+trusted_client C:\Program Files\Zscaler\ZSAUpdater\ZSAUpdater.exe
+trusted_client C:\Program Files\Zscaler\ZSAUpm\ZSAUpm.exe
+trusted_client C:\Program Files\Zscaler\ZSATrayManager\ZSATrayManager.exe
+trusted_client C:\Program Files (x86)\Zscaler\ZSATunnel\ZSATunnel.exe
+trusted_client C:\Program Files (x86)\Zscaler\ZSAService\ZSAService.exe
+trusted_client C:\Program Files (x86)\Zscaler\ZSAUpdater\ZSAUpdater.exe
+trusted_client C:\Program Files (x86)\Zscaler\ZSAUpm\ZSAUpm.exe
+trusted_client C:\Program Files (x86)\Zscaler\ZSATrayManager\ZSATrayManager.exe
+
+
+## ----------------------------------------------------------------------
+## 第 0.2 部: 例外許可の設定 (発信方向)
 ## (このコンピュータが IPv4 TCP/UDP クライアントとなり、ネットワーク上の
 ##  他のホストに対して接続される IPv4 TCP/UDP コネクションの通信に関する
 ##  例外的許可)
@@ -125,6 +159,7 @@ EnableFirewall      true
 ## 規制されるが、社内システム等に対する必要的・定期的通信が阻害される
 ## と、運用管理上の不具合が発生する場合がある。
 ## たとえば、アップデートサーバーやポリシー配布サーバーとの通信、
+## WSUS (Windows Server Update Services) サーバーとの通信、
 ## 定期的なバックアップのためのバックアップファイルサーバーとの通信、
 ## 定期的なワークフロー、バッチ等の処理や結果のメール送信、
 ## Active Directory サーバーとの通信、ログの送付処理等である。
@@ -153,7 +188,7 @@ udp         out        all   permit  2001:1234::/64  1234-5678    *
 
 
 ## ----------------------------------------------------------------------
-## 第 0.2 部: 例外許可の設定 (着信方向)
+## 第 0.3 部: 例外許可の設定 (着信方向)
 ## (このコンピュータが IPv4 TCP/UDP サーバーとなり、ネットワーク上の
 ##  他のホストから接続される IPv4 TCP/UDP コネクションの通信に関する
 ##  例外的許可)
@@ -316,6 +351,7 @@ tcp         out        all   deny    any6            *            *
 # 例外 1.3 (1) 以下の IPv4 UDP 通信の発信を特別に許容する
 # ・ IPv4 の DNS クライアント    (宛先: UDP ポート 53)
 # ・ IPv4 の DHCP クライアント   (宛先: UDP ポート 67)
+# ・ IPv4 の NTP クライアント    (宛先: UDP ポート 123)
 # ・ IPv4 の syslog クライアント (宛先: UDP ポート 514)
 # ・ IPv4 の RDP クライアント    (宛先: UDP ポート 3333)
 #    ※ 最近の Windows では、RDP 通信について、UDP が利用可能な場合は
@@ -331,6 +367,7 @@ tcp         out        all   deny    any6            *            *
 # Protocol  Direction  Type  Action  RemoteIP        RemotePort   LocalPort
 udp         out        all   permit  any4            53           *
 udp         out        all   permit  any4            67           *
+udp         out        all   permit  any4            123          *
 udp         out        all   permit  any4            514          *
 udp         out        new   permit  any4            3333         *
 
@@ -353,6 +390,7 @@ udp         out        all   deny    any4            *            *
 # 例外 1.4 (1) 以下の IPv6 UDP 通信の発信を特別に許容する
 # ・ IPv6 の DNS クライアント  (宛先: UDP ポート 53)
 # ・ IPv6 の DHCP クライアント (宛先: UDP ポート 547)
+# ・ IPv6 の NTP クライアント (宛先: UDP ポート 123)
 # ・ IPv6 の syslog クライアント (宛先: UDP ポート 514)
 # ・ IPv6 の RDP クライアント  (宛先: UDP ポート 3333)
 #    ※ 最近の Windows では、RDP 通信について、UDP が利用可能な場合は
@@ -368,6 +406,7 @@ udp         out        all   deny    any4            *            *
 # Protocol  Direction  Type  Action  RemoteIP        RemotePort   LocalPort
 udp         out        all   permit  any6            53           *
 udp         out        all   permit  any6            547          *
+udp         out        all   permit  any6            123          *
 udp         out        all   permit  any6            514          *
 udp         out        new   permit  any6            3333         *
 

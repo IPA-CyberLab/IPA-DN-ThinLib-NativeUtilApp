@@ -1150,6 +1150,30 @@ void test(UINT num, char **arg)
 
 	if (true)
 	{
+		LIST *o = MsGetProcessListNt(MS_GET_PROCESS_LIST_FLAG_GET_COMMAND_LINE | MS_GET_PROCESS_LIST_FLAG_GET_SID);
+
+		LIST *cache = MsNewSidToUsernameCache();
+
+		UINT i;
+		for (i = 0;i < LIST_NUM(o);i++)
+		{
+			MS_PROCESS *p = LIST_DATA(o, i);
+
+			MS_SID_INFO *sid = MsGetUsernameFromSid(cache, p->SidData, p->SidSize);
+
+			wchar_t *un = sid == NULL ? L"(null)" : sid->Username;
+			wchar_t *dm = sid == NULL ? L"(null)" : sid->DomainName;
+
+			UniPrint(L"%u %s %u %s\\%s %u\n", p->ProcessId, p->ExeFilenameW, p->SidSize, dm, un, p->SessionId);
+
+		}
+
+		MsFreeProcessList(o);
+
+		MsFreeSidToUsernameCache(cache);
+	}
+	else if (true)
+	{
 		DuWfpTest2();
 	}
 	else
