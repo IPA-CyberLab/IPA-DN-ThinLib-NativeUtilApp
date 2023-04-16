@@ -1148,7 +1148,26 @@ void test(UINT num, char **arg)
 {
 #ifdef OS_WIN32
 
-	if (true)
+	if (false)
+	{
+		LIST *sid_cache = MsNewSidToUsernameCache();
+		LIST *o = MsGetThinFwList(sid_cache);
+		FreeDiffList(o);
+		MsFreeSidToUsernameCache(sid_cache);
+	}
+	else if (true)
+	{
+		wchar_t tmp[MAX_PATH] = CLEAN;
+		CombinePathW(tmp, sizeof(tmp), MsGetExeDirNameW(), L"fwtest.txt");
+		TF_SERVICE *svc = TfStartService(TF_SVC_MODE_SYSTEMMODE, tmp);
+
+		Print("QUIT: ");
+
+		GetLine(NULL, 0);
+
+		TfStopService(svc);
+	}
+	else if (true)
 	{
 		LIST *o = MsGetProcessListNt(MS_GET_PROCESS_LIST_FLAG_GET_COMMAND_LINE | MS_GET_PROCESS_LIST_FLAG_GET_SID);
 
