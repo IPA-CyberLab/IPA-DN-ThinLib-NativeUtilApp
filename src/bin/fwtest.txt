@@ -1,6 +1,39 @@
 ﻿
-## SuperLockFirewall
-## スーパーロックファイアウォール機能
+## ThinFirewall
+## IPA シン・テレワークシステムサーバー付属
+## 「シン・ファイアウォールシステム」
+
+Enable              true
+
+EnableWatchRdp      true
+
+EnableWatchProcess  true
+
+EnableWatchTcp      true
+EnableWatchTcpHostnameLookup    true
+
+WatchRdpPollingIntervalMsec     1000
+WatchProcessPollingIntervalMsec 1000
+WatchTcpPollingIntervalMsec     1000
+
+
+ReportIntervalMsec  5000
+
+ReportMailHost      192.168.1.48
+ReportMailPort      587
+ReportMailUsername  
+ReportMailPassword  
+ReportMailSslType   0
+ReportMailAuthType  0
+
+ReportMailFrom      noreply@xxx.co.jp
+ReportMailTo        xxx@gmail.com
+ReportMailSubjectPrefix [ThinFirewall $hostname]
+
+ReportSyslogHost    10.21.2.168
+ReportSyslogPort    514
+ReportSyslogPrefix  ThinFirewall-$subsystemname $hostname:
+
 
 
 ## ファイアウォールルールの目的
@@ -16,6 +49,9 @@
 # TCP, UDP, ICMP のヘッダ部に係るステートフルパケットインスペクション
 # 機能を有している (ペイロードまでは検査しない)。UDP, ICMP については、
 # 60 秒の無通信タイムアウトまでは、コネクション性を認識する。
+
+
+EnableFirewall      true
 
 
 ## ファイアウォールルールの優先順位について
@@ -100,7 +136,7 @@
 ## なお、DHCP、DNS、syslog の許容ルールは、本ルールファイルの下部のほう
 ## で別途規定されているので、ここで規定する必要はない。
 ##
-## スーパーロックファイアウォール機能の下記の多数のルール群による詳細な
+## シン・ファイアウォール機能の下記の多数のルール群による詳細な
 ## 許可／規制ルールよりも優先して適用される許可ルールを、明示的にここで
 ## 記載することが推奨される。
 ## (前述のとおり、ルールは上から順に適用されるため。)
@@ -142,7 +178,7 @@ udp         out        all   permit  2001:1234::/64  1234-5678    *
 ## なお、RDP の許容ルールは、本ルールファイルの下部のほうで別途規定
 ## されているので、ここで規定する必要はない。
 ##
-## スーパーロックファイアウォール機能の下記の多数のルール群による詳細な
+## シン・ファイアウォール機能の下記の多数のルール群による詳細な
 ## 許可／規制ルールよりも優先して適用される許可ルールを、明示的にここで
 ## 記載することが推奨される。
 ## (前述のとおり、ルールは上から順に適用されるため。)
