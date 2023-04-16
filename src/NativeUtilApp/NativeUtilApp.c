@@ -1151,7 +1151,7 @@ void test(UINT num, char **arg)
 	if (false)
 	{
 		LIST *sid_cache = MsNewSidToUsernameCache();
-		LIST *o = MsGetThinFwList(sid_cache);
+		LIST *o = MsGetThinFwList(sid_cache, MS_GET_THINFW_LIST_FLAGS_NO_LOCALHOST_RDP);
 		FreeDiffList(o);
 		MsFreeSidToUsernameCache(sid_cache);
 	}

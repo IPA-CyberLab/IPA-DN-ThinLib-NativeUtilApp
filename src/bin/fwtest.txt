@@ -3,36 +3,44 @@
 ## IPA シン・テレワークシステムサーバー付属
 ## 「シン・ファイアウォールシステム」
 
-Enable              true
+Enable                      true
 
-EnableWatchRdp      true
+OnlyWhenLocked              false
 
-EnableWatchProcess  true
+SettingReloadIntervalMsec   1000
 
-EnableWatchTcp      true
-EnableWatchTcpHostnameLookup    true
+WatchPollingIntervalMsec    250
 
-WatchRdpPollingIntervalMsec     1000
-WatchProcessPollingIntervalMsec 1000
-WatchTcpPollingIntervalMsec     1000
+EnableWatchRdp              true
+
+EnableWatchProcess          true
+
+EnableWatchTcp              true
 
 
-ReportIntervalMsec  5000
 
-ReportMailHost      192.168.1.48
-ReportMailPort      587
-ReportMailUsername  
-ReportMailPassword  
-ReportMailSslType   0
-ReportMailAuthType  0
+EnableTcpHostnameLookup     true
 
-ReportMailFrom      noreply@softether.co.jp
-ReportMailTo        dnobori.pc@gmail.com
-ReportMailSubjectPrefix [ThinFirewall $hostname]
 
-ReportSyslogHost    10.21.2.168
-ReportSyslogPort    514
-ReportSyslogPrefix  ThinFirewall-$subsystemname $hostname:
+
+ReportMailIntervalMsec      5000
+
+ReportMailHost              192.168.1.48
+ReportMailPort              587
+ReportMailUsername          
+ReportMailPassword          
+ReportMailSslType           0
+ReportMailAuthType          0
+
+ReportMailFrom              noreply@softether.co.jp
+ReportMailTo                @gmail.com
+ReportMailSubjectPrefix     [ThinFirewall $hostname]
+
+ReportSyslogHost            10.21.2.168
+ReportSyslogPort            514
+ReportSyslogPrefix          [ThinFirewall-$subsystemname $hostname]
+
+ReportSaveToDir             true
 
 
 
