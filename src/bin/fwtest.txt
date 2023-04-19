@@ -5,25 +5,39 @@
 
 Enable                      true
 
-OnlyWhenLocked              false
+
+WatchOnlyWhenLocked         false
+
 
 SettingReloadIntervalMsec   1000
 
+
 WatchPollingIntervalMsec    250
+
 
 EnableWatchRdp              true
 
-EnableWatchProcess          true
+EnableWatchDns              true
+
 
 EnableWatchTcp              true
-
-
-
 EnableTcpHostnameLookup     true
+HostnameLookupTimeoutMsec   500
+
+EnableWatchProcess          true
+IncludeProcessCommandLine   true
 
 
+EnableFirewall              true
+
+GetNetworkInfoIntervalMsec  300000
+
+IgnoreDNSoverTCPSession     true
 
 ReportMailIntervalMsec      5000
+
+
+ReportMailOnlyWhenLocked    false
 
 ReportMailHost              192.168.1.48
 ReportMailPort              587
@@ -36,9 +50,13 @@ ReportMailFrom              noreply@softether.co.jp
 ReportMailTo                @gmail.com
 ReportMailSubjectPrefix     [ThinFirewall $hostname]
 
+
+ReportSyslogOnlyWhenLocked    false
+
 ReportSyslogHost            10.21.2.168
 ReportSyslogPort            514
 ReportSyslogPrefix          [ThinFirewall-$subsystemname $hostname]
+
 
 ReportSaveToDir             true
 
@@ -59,7 +77,6 @@ ReportSaveToDir             true
 # 60 秒の無通信タイムアウトまでは、コネクション性を認識する。
 
 
-EnableFirewall      true
 
 
 ## ファイアウォールルールの優先順位について
@@ -588,4 +605,7 @@ icmp        out        all   permit  any6
 
 
 ## 糸冬了！！
+
+[END_OF_FILE]
+
 

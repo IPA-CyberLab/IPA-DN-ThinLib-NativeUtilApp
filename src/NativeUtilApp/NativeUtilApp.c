@@ -1148,6 +1148,51 @@ void test(UINT num, char **arg)
 {
 #ifdef OS_WIN32
 
+
+	if (false)
+	{
+		LIST *a = MsGetCurrentDnsServersList();
+		while (true)
+		{
+
+			UINT i;
+			for (i = 0;i < LIST_NUM(a);i++)
+			{
+				IP *ip = LIST_DATA(a, i);
+
+				Print("%r\n", ip);
+			}
+
+		}
+		ReleaseStrList(a);
+
+		return;
+	}
+
+	if (false)
+	{
+		char tmp[64] = CLEAN;
+		while (true)
+		{
+			Print(">");
+			GetLine(tmp, sizeof(tmp));
+
+			IP ip = CLEAN;
+			StrToIP(&ip, tmp);
+
+			char tmp2[128] = CLEAN;
+
+			GetHostNameEx(tmp2, sizeof(tmp2), &ip, 0, GETHOSTNAME_USE_DNS_API);
+
+			//GetNetBiosName(tmp2, sizeof(tmp2), &ip);
+
+			//IPAddressToPtrFqdn(tmp2, sizeof(tmp2), &ip);
+
+			Print("%s\n", tmp2);
+		}
+		return;
+	}
+
 	if (false)
 	{
 		LIST *sid_cache = MsNewSidToUsernameCache();
