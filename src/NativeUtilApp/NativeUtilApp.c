@@ -1144,10 +1144,45 @@ void DuWfpTest();
 
 void DuWfpTest2();
 
+void thproc(THREAD *t, void *param)
+{
+	LIST *c = MsNewSidToUsernameCache();
+	UINT i;
+	for (i = 0;;i++)
+	{
+		LIST *o = MsGetThinFwList(c, 0);
+
+		FreeDiffList(o);
+
+		//char tmp[MAX_SIZE] = CLEAN;
+		//IP ip = CLEAN;
+		//StrToIP(&ip, "192.168.3.2");
+		//GetHostNameInner(tmp, sizeof(tmp), &ip, GETHOSTNAME_USE_DNS_API);
+	}
+	MsFreeSidToUsernameCache(c);
+}
+
 void test(UINT num, char **arg)
 {
 #ifdef OS_WIN32
 
+	if (false)
+	{
+		UINT i;
+		LIST *o = NewThreadList();
+		for (i = 0;i < 32;i++)
+		{
+			THREAD *t = NewThread(thproc, NULL);
+			AddThreadToThreadList(o, t);
+			ReleaseThread(t);
+		}
+
+		FreeThreadList(o);
+
+		//SleepThread(INFINITE);
+
+		return;
+	}
 
 	if (false)
 	{
