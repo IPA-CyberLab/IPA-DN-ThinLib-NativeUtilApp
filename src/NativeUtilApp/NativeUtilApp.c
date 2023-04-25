@@ -274,7 +274,7 @@ void heavy_thread_proc(THREAD *thread, void *param)
 			Unlock(heavy_lock);
 			
 			UINT j;
-			UINT len = rand() % 1000;
+			UINT len = rand() % 100;
 			for (j = 0;j < len;j++)
 			{
 				DoNothing();
