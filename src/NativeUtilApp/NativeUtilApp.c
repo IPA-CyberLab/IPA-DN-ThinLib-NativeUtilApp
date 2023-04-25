@@ -252,6 +252,8 @@ void check_stall_thread(THREAD *thread, void *param)
 
 bool heavy_thread_start_flag = false;
 
+LOCK *heavy_lock;
+
 void heavy_thread_proc(THREAD *thread, void *param)
 {
 	UINT i = (UINT)param;
@@ -264,8 +266,12 @@ void heavy_thread_proc(THREAD *thread, void *param)
 	{
 		while (true)
 		{
-			SleepThread(100);
-			DoNothing();
+			//SleepThread(100);
+			Lock(heavy_lock);
+			{
+				DoNothing();
+			}
+			Unlock(heavy_lock);
 		}
 	}
 	else
@@ -279,6 +285,8 @@ void heavy_thread_proc(THREAD *thread, void *param)
 
 void heavy_test_main(UINT num_threads)
 {
+	heavy_lock = NewLock();
+
 	if (num_threads == 0)
 	{
 		num_threads = 1;
