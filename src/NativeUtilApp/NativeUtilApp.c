@@ -231,7 +231,9 @@ void check_stall_thread(THREAD *thread, void *param)
 			{
 				if (dbg_last_diff >= 5000)
 				{
-					CrashNow();
+					char tmp[MAX_PATH] = CLEAN;
+					Format(tmp, sizeof(tmp), "dbg_last_diff = %u\n", dbg_last_diff);
+					AbortExitEx(tmp);
 				}
 
 				UINT a = dbg_last_diff;
