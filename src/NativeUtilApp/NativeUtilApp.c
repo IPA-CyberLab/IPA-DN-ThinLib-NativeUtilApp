@@ -1520,7 +1520,7 @@ void TestMain(char *cmd)
 	bool exit_now = false;
 
 	Print("Hamster Tester\n");
-	//OSSetHighPriority();
+	OSSetHighPriority();
 
 	while (true)
 	{
