@@ -1063,7 +1063,9 @@ void udpbench_test(UINT num, char** arg)
 		st->size = size;
 		st->rand_flag = rand_flag;
 
-		for (UINT j = 0;j < num_cpu;j++)
+		UINT j;
+
+		for (j = 0;j < num_cpu;j++)
 		{
 			Print("Thread %u: [%r]:%u\n", index++, &st->ip, st->port);
 			NewThread(udpbench_thread, st);
@@ -1156,7 +1158,8 @@ void udprand_test(UINT num, char** arg)
 	Print("Target host: %r:%u\n", &dest_ip, dest_port);
 	Print("Local port: %u\n", s->LocalPort);
 
-	for (UINT i = 0;;i++)
+	UINT i;
+	for (i = 0;;i++)
 	{
 		UCHAR rand[64] = CLEAN;
 		Rand(rand, sizeof(rand));
