@@ -269,6 +269,13 @@ void heavy_thread_proc(THREAD *thread, void *param)
 			//SleepThread(100);
 			Lock(heavy_lock);
 			{
+				UINT j;
+				UINT len = 1000;
+				for (j = 0;j < len;j++)
+				{
+					DoNothing();
+				}
+
 				DoNothing();
 			}
 			Unlock(heavy_lock);
