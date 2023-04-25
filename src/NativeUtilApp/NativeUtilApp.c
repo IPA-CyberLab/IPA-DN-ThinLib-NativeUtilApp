@@ -272,6 +272,12 @@ void heavy_thread_proc(THREAD *thread, void *param)
 				DoNothing();
 			}
 			Unlock(heavy_lock);
+			
+			UINT j;
+			for (j = 0;j < 1000;j++)
+			{
+				DoNothing();
+			}
 		}
 	}
 	else
