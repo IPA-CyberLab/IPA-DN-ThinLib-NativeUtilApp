@@ -270,7 +270,7 @@ void heavy_thread_proc(THREAD *thread, void *param)
 			Lock(heavy_lock);
 			{
 				UINT j;
-				UINT len = 1000;
+				UINT len = 10;
 				for (j = 0;j < len;j++)
 				{
 					DoNothing();
