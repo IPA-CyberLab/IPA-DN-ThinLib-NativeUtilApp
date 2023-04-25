@@ -252,15 +252,26 @@ bool heavy_thread_start_flag = false;
 
 void heavy_thread_proc(THREAD *thread, void *param)
 {
+	UINT i = (UINT)param;
 	while (heavy_thread_start_flag == false)
 	{
 		SleepThread(100);
 	}
 
-	while (true)
+	if ((i % 2) == 0)
 	{
-		SleepThread(1);
-		DoNothing();
+		while (true)
+		{
+			SleepThread(1);
+			DoNothing();
+		}
+	}
+	else
+	{
+		while (true)
+		{
+			DoNothing();
+		}
 	}
 }
 
@@ -279,7 +290,7 @@ void heavy_test_main(UINT num_threads)
 	UINT i;
 	for (i = 0;i < num_threads;i++)
 	{
-		NewThread(heavy_thread_proc, 0);
+		NewThread(heavy_thread_proc, i);
 		if ((i % 100) == 0)
 		{
 			Print("Thread %u\n", i);
