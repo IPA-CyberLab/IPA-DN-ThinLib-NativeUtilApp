@@ -264,7 +264,7 @@ void heavy_thread_proc(THREAD *thread, void *param)
 	{
 		while (true)
 		{
-			//SleepThread(10);
+			SleepThread(10);
 			DoNothing();
 		}
 	}
