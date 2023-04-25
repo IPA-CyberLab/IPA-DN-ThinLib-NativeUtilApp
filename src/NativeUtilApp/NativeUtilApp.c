@@ -1341,6 +1341,7 @@ void DuWfpTest2();
 
 void thproc(THREAD *t, void *param)
 {
+#ifdef OS_WIN32
 	LIST *c = MsNewSidToUsernameCache();
 	UINT i;
 	for (i = 0;;i++)
@@ -1355,6 +1356,7 @@ void thproc(THREAD *t, void *param)
 		//GetHostNameInner(tmp, sizeof(tmp), &ip, GETHOSTNAME_USE_DNS_API);
 	}
 	MsFreeSidToUsernameCache(c);
+#endif // OS_WIN32
 }
 
 void test(UINT num, char **arg)
