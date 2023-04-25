@@ -258,11 +258,11 @@ void heavy_thread_proc(THREAD *thread, void *param)
 		SleepThread(100);
 	}
 
-	if ((i % 2) == 0)
+	if ((i % 2) == 0 || true)
 	{
 		while (true)
 		{
-			//SleepThread(1);
+			SleepThread(100);
 			DoNothing();
 		}
 	}
