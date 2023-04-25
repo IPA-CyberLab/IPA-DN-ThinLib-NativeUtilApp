@@ -205,12 +205,14 @@ void check_stall_thread(THREAD *thread, void *param)
 
 	UINT64 last = 0;
 
+	UINT sleep_span = 100;
+
 	while (true)
 	{
 		UINT64 now = 0;
 
 #ifdef OS_WIN32
-		now = Tick64();
+		now = TickHighres64();
 #else
 		struct timespec t = CLEAN;
 		clock_gettime(CLOCK_MONOTONIC, &t);
@@ -225,19 +227,24 @@ void check_stall_thread(THREAD *thread, void *param)
 		{
 			dbg_last_diff = (UINT)(now - last);
 			dbg_diff_max = MAX(dbg_diff_max, dbg_last_diff);
-			if (dbg_last_diff >= 100)
+			//if (dbg_last_diff >= 100)
 			{
 				if (dbg_last_diff >= 5000)
 				{
 					CrashNow();
 				}
-				Print("diff = %u\n", dbg_last_diff);
+
+				UINT a = dbg_last_diff;
+				a = MAX(a, sleep_span);
+				a -= sleep_span;
+
+				Print("diff = %u\n", a);
 			}
 		}
 
 		last = now;
 
-		SleepThread(1);
+		SleepThread(sleep_span);
 	}
 }
 
@@ -252,22 +259,25 @@ void heavy_thread_proc(THREAD *thread, void *param)
 
 	while (true)
 	{
-		SleepThread(1);
+		//SleepThread(1);
 		DoNothing();
 	}
 }
 
-void heavy_test()
+void heavy_test_main(UINT num_threads)
 {
-	Print("Heavy test init...");
+	if (num_threads == 0)
+	{
+		num_threads = 1;
+	}
+
+	Print("Heavy test init (num_threads = %u) ...\n", num_threads);
 	NewThread(check_stall_thread, NULL);
 	NewThread(debug_thread, NULL);
 
-	UINT num_threads = 10000;
-
 	Print("Starting %u threads ...\n", num_threads);
 	UINT i;
-	for (i = 0;i < 10000;i++)
+	for (i = 0;i < num_threads;i++)
 	{
 		NewThread(heavy_thread_proc, 0);
 		if ((i % 100) == 0)
@@ -279,6 +289,17 @@ void heavy_test()
 	SleepThread(100);
 	heavy_thread_start_flag = true;
 	SleepThread(INFINITE);
+}
+
+void heavy_test(UINT argc, char **argv)
+{
+	UINT num_threads = 1000;
+	if (argc >= 1)
+	{
+		num_threads = ToInt(argv[0]);
+	}
+
+	heavy_test_main(num_threads);
 }
 
 
@@ -1486,6 +1507,7 @@ TEST_LIST test_list[] =
 	{"hello", hello_test},
 	{"vdi", vdi_admin_util},
 	{"proxykeepalive", proxykeepalive},
+	{"heavy", heavy_test},
 };
 
 // テスト関数
@@ -1496,7 +1518,7 @@ void TestMain(char *cmd)
 	bool exit_now = false;
 
 	Print("Hamster Tester\n");
-	OSSetHighPriority();
+	//OSSetHighPriority();
 
 	while (true)
 	{
