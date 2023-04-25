@@ -109,6 +109,180 @@ struct mmsghdr2 {
 
 
 
+
+
+UINT dbg_tick_count = 0;
+UINT64 dbg_tick_now = 0;
+UINT dbg_last_diff = 0;
+UINT dbg_diff_max = 0;
+
+void debug_sock_thread(THREAD *thread, void *param)
+{
+#ifdef OS_WIN32
+	MsSetThreadPriorityRealtime();
+#else
+	UnixSetThreadPriorityRealtime();
+#endif // OS_WIN32
+
+	SOCK *s = param;
+
+	char *str = "Hello!! \r\n>";
+
+	SendAll(s, str, StrLen(str), false);
+
+	UINT counter = 0;
+
+	/*while (true)
+	{
+		UCHAR c = 0;
+		if (RecvAll(s, &c, 1, false) == false)
+		{
+			break;
+		}
+
+		if (c == 'a')
+		{
+			char *ok_str = "\r\nOK!\r\n";
+			SendAll(s, ok_str, StrLen(ok_str), false);
+			CrashNow();
+		}
+
+		counter++;
+		char tmp[MAX_PATH] = CLEAN;
+
+		Format(tmp, sizeof(tmp), "\r\n%u>", counter);
+		SendAll(s, tmp, StrLen(tmp), false);
+	}*/
+
+	while (true)
+	{
+		char tmp[MAX_PATH] = CLEAN;
+		Format(tmp, sizeof(tmp), "%u    %I64u   diff = %u  max = %u\r\n", dbg_tick_count, dbg_tick_now, dbg_last_diff, dbg_diff_max);
+		if (SendAll(s, tmp, StrLen(tmp), false) == false)
+		{
+			break;
+		}
+
+		SleepThread(100);
+	}
+
+	Disconnect(s);
+	ReleaseSock(s);
+}
+
+void debug_thread(THREAD *thread, void *param)
+{
+#ifdef OS_WIN32
+	MsSetThreadPriorityRealtime();
+#else
+	UnixSetThreadPriorityRealtime();
+#endif // OS_WIN32
+
+	SOCK *s = Listen(1234);
+	if (s == NULL)
+	{
+		Print("Listen error\n");
+		return;
+	}
+
+	while (true)
+	{
+		SOCK *a = Accept(s);
+
+		THREAD *t = NewThread(debug_sock_thread, a);
+
+		ReleaseThread(t);
+	}
+}
+
+void check_stall_thread(THREAD *thread, void *param)
+{
+#ifdef OS_WIN32
+	MsSetThreadPriorityRealtime();
+#else
+	UnixSetThreadPriorityRealtime();
+#endif // OS_WIN32
+
+	UINT64 last = 0;
+
+	while (true)
+	{
+		UINT64 now = 0;
+
+#ifdef OS_WIN32
+		now = Tick64();
+#else
+		struct timespec t = CLEAN;
+		clock_gettime(CLOCK_MONOTONIC, &t);
+		now = ((UINT64)((UINT32)t.tv_sec)) * 1000LL + (UINT64)t.tv_nsec / 1000000LL;
+#endif // OS_WIN32
+
+
+		dbg_tick_now = now;
+		dbg_tick_count++;
+
+		if (last != 0)
+		{
+			dbg_last_diff = (UINT)(now - last);
+			dbg_diff_max = MAX(dbg_diff_max, dbg_last_diff);
+			if (dbg_last_diff >= 100)
+			{
+				if (dbg_last_diff >= 5000)
+				{
+					CrashNow();
+				}
+				Print("diff = %u\n", dbg_last_diff);
+			}
+		}
+
+		last = now;
+
+		SleepThread(1);
+	}
+}
+
+bool heavy_thread_start_flag = false;
+
+void heavy_thread_proc(THREAD *thread, void *param)
+{
+	while (heavy_thread_start_flag == false)
+	{
+		SleepThread(100);
+	}
+
+	while (true)
+	{
+		SleepThread(1);
+		DoNothing();
+	}
+}
+
+void heavy_test()
+{
+	Print("Heavy test init...");
+	NewThread(check_stall_thread, NULL);
+	NewThread(debug_thread, NULL);
+
+	UINT num_threads = 10000;
+
+	Print("Starting %u threads ...\n", num_threads);
+	UINT i;
+	for (i = 0;i < 10000;i++)
+	{
+		NewThread(heavy_thread_proc, 0);
+		if ((i % 100) == 0)
+		{
+			Print("Thread %u\n", i);
+		}
+	}
+	Print("All %u threads started. Ok.\n", num_threads);
+	SleepThread(100);
+	heavy_thread_start_flag = true;
+	SleepThread(INFINITE);
+}
+
+
+
 char* Dev_GetFirstFilledStrFromBuf(BUF* buf)
 {
 	if (buf == NULL)
