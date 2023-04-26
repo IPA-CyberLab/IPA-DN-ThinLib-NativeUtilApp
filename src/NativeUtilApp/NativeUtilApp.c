@@ -1337,7 +1337,7 @@ void tcp_stress_test(UINT num, char **arg)
 		ReleaseThread(t);
 	}
 
-	SleepThread(INFINITE);
+	//SleepThread(INFINITE);
 }
 
 void proxykeepalive(UINT num, char **arg)
