@@ -256,7 +256,7 @@ LOCK *heavy_lock;
 
 void heavy_thread_proc(THREAD *thread, void *param)
 {
-	UINT i = (UINT)param;
+	UINT i = (UINT)(UINT64)param;
 	while (heavy_thread_start_flag == false)
 	{
 		SleepThread(100);
@@ -314,7 +314,7 @@ void heavy_test_main(UINT num_threads)
 	UINT i;
 	for (i = 0;i < num_threads;i++)
 	{
-		NewThread(heavy_thread_proc, i);
+		NewThread(heavy_thread_proc, (void *)(UINT64)i);
 		if ((i % 100) == 0)
 		{
 			Print("Thread %u\n", i);
@@ -1256,6 +1256,90 @@ void vdi_admin_util(UINT num, char **arg)
 	}
 }
 
+typedef struct TCP_STRESS_TEST_CTX
+{
+	IP Ip;
+	UINT Port;
+} TCP_STRESS_TEST_CTX;
+
+void tcp_stress_test_thread(THREAD *thread, void *param)
+{
+	TCP_STRESS_TEST_CTX *ctx = param;
+
+	GpcTableSum("Threads", 1);
+
+	while (true)
+	{
+		GpcTableEnter("Connecting");
+		char ip_str[MAX_PATH] = CLEAN;
+		IPToStr(ip_str, sizeof(ip_str), &ctx->Ip);
+		SOCK *s = ConnectEx4(ip_str, ctx->Port, 0, NULL, NULL, NULL, false, false, true, NULL);
+		GpcTableExit("Connecting");
+
+		if (s == NULL)
+		{
+			GpcTableSum("Connect error", 1);
+			SleepThread(10);
+			continue;
+		}
+
+		GpcTableSum("Connected", 1);
+
+		continue;
+
+		GpcTableEnter("Established");
+
+		if (s != NULL)
+		{
+			UCHAR c;
+			Recv(s, &c, 1, 0);
+			GpcTableSum("Disconnected", 1);
+			Disconnect(s);
+			ReleaseSock(s);
+		}
+
+		GpcTableExit("Established");
+	}
+}
+
+void tcp_stress_test(UINT num, char **arg)
+{
+	if (num < 2)
+	{
+		Print("tcp_stress_test <target> <port>\n");
+		return;
+	}
+
+	char hostname[MAX_PATH] = CLEAN;
+	StrCpy(hostname, sizeof(hostname), arg[0]);
+	UINT port = ToInt(arg[1]);
+
+	IP ip = CLEAN;
+	if (GetIP(&ip, hostname) == false)
+	{
+		Print("Error: hostname '%s' not found.\n", hostname);
+		return;
+	}
+
+	Print("hostname '%s': IP = %r\n", hostname, &ip);
+
+	GpcStartPrintStat(500);
+
+	UINT i;
+	for (i = 0;i < 1000;i++)
+	{
+		TCP_STRESS_TEST_CTX *ctx = ZeroMalloc(sizeof(TCP_STRESS_TEST_CTX));
+		CopyIP(&ctx->Ip, &ip);
+		ctx->Port = port;
+
+		THREAD *t = NewThread(tcp_stress_test_thread, ctx);
+
+		ReleaseThread(t);
+	}
+
+	SleepThread(INFINITE);
+}
+
 void proxykeepalive(UINT num, char **arg)
 {
 	Print("Proxy keepalive function\n\n");
@@ -1548,6 +1632,7 @@ TEST_LIST test_list[] =
 	{"vdi", vdi_admin_util},
 	{"proxykeepalive", proxykeepalive},
 	{"heavy", heavy_test},
+	{"tcp_stress_test", tcp_stress_test},
 };
 
 // テスト関数
@@ -1558,7 +1643,7 @@ void TestMain(char *cmd)
 	bool exit_now = false;
 
 	Print("Hamster Tester\n");
-	OSSetHighPriority();
+	//OSSetHighPriority();
 
 	while (true)
 	{
