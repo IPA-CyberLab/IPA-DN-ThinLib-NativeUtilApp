@@ -28,7 +28,7 @@ EnableWatchProcess          true
 IncludeProcessCommandLine   1
 
 
-EnableFirewall              true
+EnableFirewall              false
 
 GetNetworkInfoIntervalMsec  300000
 
