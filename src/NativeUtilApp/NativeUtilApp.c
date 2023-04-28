@@ -109,6 +109,236 @@ struct mmsghdr2 {
 
 
 
+
+
+UINT dbg_tick_count = 0;
+UINT64 dbg_tick_now = 0;
+UINT dbg_last_diff = 0;
+UINT dbg_diff_max = 0;
+
+void debug_sock_thread(THREAD *thread, void *param)
+{
+#ifdef OS_WIN32
+	MsSetThreadPriorityRealtime();
+#else
+	UnixSetThreadPriorityRealtime();
+#endif // OS_WIN32
+
+	SOCK *s = param;
+
+	char *str = "Hello!! \r\n>";
+
+	SendAll(s, str, StrLen(str), false);
+
+	UINT counter = 0;
+
+	/*while (true)
+	{
+		UCHAR c = 0;
+		if (RecvAll(s, &c, 1, false) == false)
+		{
+			break;
+		}
+
+		if (c == 'a')
+		{
+			char *ok_str = "\r\nOK!\r\n";
+			SendAll(s, ok_str, StrLen(ok_str), false);
+			CrashNow();
+		}
+
+		counter++;
+		char tmp[MAX_PATH] = CLEAN;
+
+		Format(tmp, sizeof(tmp), "\r\n%u>", counter);
+		SendAll(s, tmp, StrLen(tmp), false);
+	}*/
+
+	while (true)
+	{
+		char tmp[MAX_PATH] = CLEAN;
+		Format(tmp, sizeof(tmp), "%u    %I64u   diff = %u  max = %u\r\n", dbg_tick_count, dbg_tick_now, dbg_last_diff, dbg_diff_max);
+		if (SendAll(s, tmp, StrLen(tmp), false) == false)
+		{
+			break;
+		}
+
+		SleepThread(100);
+	}
+
+	Disconnect(s);
+	ReleaseSock(s);
+}
+
+void debug_thread(THREAD *thread, void *param)
+{
+#ifdef OS_WIN32
+	MsSetThreadPriorityRealtime();
+#else
+	UnixSetThreadPriorityRealtime();
+#endif // OS_WIN32
+
+	SOCK *s = Listen(1234);
+	if (s == NULL)
+	{
+		Print("Listen error\n");
+		return;
+	}
+
+	while (true)
+	{
+		SOCK *a = Accept(s);
+
+		THREAD *t = NewThread(debug_sock_thread, a);
+
+		ReleaseThread(t);
+	}
+}
+
+void check_stall_thread(THREAD *thread, void *param)
+{
+#ifdef OS_WIN32
+	MsSetThreadPriorityRealtime();
+#else
+	UnixSetThreadPriorityRealtime();
+#endif // OS_WIN32
+
+	UINT64 last = 0;
+
+	UINT sleep_span = 100;
+
+	while (true)
+	{
+		UINT64 now = 0;
+
+#ifdef OS_WIN32
+		now = TickHighres64();
+#else
+		struct timespec t = CLEAN;
+		clock_gettime(CLOCK_MONOTONIC, &t);
+		now = ((UINT64)((UINT32)t.tv_sec)) * 1000LL + (UINT64)t.tv_nsec / 1000000LL;
+#endif // OS_WIN32
+
+
+		dbg_tick_now = now;
+		dbg_tick_count++;
+
+		if (last != 0)
+		{
+			dbg_last_diff = (UINT)(now - last);
+			dbg_diff_max = MAX(dbg_diff_max, dbg_last_diff);
+			//if (dbg_last_diff >= 100)
+			{
+				if (dbg_last_diff >= 5000)
+				{
+					char tmp[MAX_PATH] = CLEAN;
+					Format(tmp, sizeof(tmp), "dbg_last_diff = %u\n", dbg_last_diff);
+					AbortExitEx(tmp);
+				}
+
+				UINT a = dbg_last_diff;
+				a = MAX(a, sleep_span);
+				a -= sleep_span;
+
+				Print("diff = %u\n", a);
+			}
+		}
+
+		last = now;
+
+		SleepThread(sleep_span);
+	}
+}
+
+bool heavy_thread_start_flag = false;
+
+LOCK *heavy_lock;
+
+void heavy_thread_proc(THREAD *thread, void *param)
+{
+	UINT i = (UINT)(UINT64)param;
+	while (heavy_thread_start_flag == false)
+	{
+		SleepThread(100);
+	}
+
+	if ((i % 2) == 0 || true)
+	{
+		while (true)
+		{
+			//SleepThread(100);
+			Lock(heavy_lock);
+			{
+				UINT j;
+				UINT len = 10;
+				for (j = 0;j < len;j++)
+				{
+					DoNothing();
+				}
+
+				DoNothing();
+			}
+			Unlock(heavy_lock);
+			
+			UINT j;
+			UINT len = rand() % 100;
+			for (j = 0;j < len;j++)
+			{
+				DoNothing();
+			}
+		}
+	}
+	else
+	{
+		while (true)
+		{
+			DoNothing();
+		}
+	}
+}
+
+void heavy_test_main(UINT num_threads)
+{
+	heavy_lock = NewLock();
+
+	if (num_threads == 0)
+	{
+		num_threads = 1;
+	}
+
+	Print("Heavy test init (num_threads = %u) ...\n", num_threads);
+	NewThread(check_stall_thread, NULL);
+	NewThread(debug_thread, NULL);
+
+	Print("Starting %u threads ...\n", num_threads);
+	UINT i;
+	for (i = 0;i < num_threads;i++)
+	{
+		NewThread(heavy_thread_proc, (void *)(UINT64)i);
+		if ((i % 100) == 0)
+		{
+			Print("Thread %u\n", i);
+		}
+	}
+	Print("All %u threads started. Ok.\n", num_threads);
+	SleepThread(100);
+	heavy_thread_start_flag = true;
+	SleepThread(INFINITE);
+}
+
+void heavy_test(UINT argc, char **argv)
+{
+	UINT num_threads = 1000;
+	if (argc >= 1)
+	{
+		num_threads = ToInt(argv[0]);
+	}
+
+	heavy_test_main(num_threads);
+}
+
+
+
 char* Dev_GetFirstFilledStrFromBuf(BUF* buf)
 {
 	if (buf == NULL)
@@ -855,7 +1085,9 @@ void udpbench_test(UINT num, char** arg)
 		st->size = size;
 		st->rand_flag = rand_flag;
 
-		for (UINT j = 0;j < num_cpu;j++)
+		UINT j;
+
+		for (j = 0;j < num_cpu;j++)
 		{
 			Print("Thread %u: [%r]:%u\n", index++, &st->ip, st->port);
 			NewThread(udpbench_thread, st);
@@ -948,7 +1180,8 @@ void udprand_test(UINT num, char** arg)
 	Print("Target host: %r:%u\n", &dest_ip, dest_port);
 	Print("Local port: %u\n", s->LocalPort);
 
-	for (UINT i = 0;;i++)
+	UINT i;
+	for (i = 0;;i++)
 	{
 		UCHAR rand[64] = CLEAN;
 		Rand(rand, sizeof(rand));
@@ -1021,6 +1254,90 @@ void vdi_admin_util(UINT num, char **arg)
 
 		SleepThread(wait_interval);
 	}
+}
+
+typedef struct TCP_STRESS_TEST_CTX
+{
+	IP Ip;
+	UINT Port;
+} TCP_STRESS_TEST_CTX;
+
+void tcp_stress_test_thread(THREAD *thread, void *param)
+{
+	TCP_STRESS_TEST_CTX *ctx = param;
+
+	GpcTableSum("Threads", 1);
+
+	while (true)
+	{
+		GpcTableEnter("Connecting");
+		char ip_str[MAX_PATH] = CLEAN;
+		IPToStr(ip_str, sizeof(ip_str), &ctx->Ip);
+		SOCK *s = ConnectEx4(ip_str, ctx->Port, 0, NULL, NULL, NULL, false, false, true, NULL);
+		GpcTableExit("Connecting");
+
+		if (s == NULL)
+		{
+			GpcTableSum("Connect error", 1);
+			SleepThread(10);
+			continue;
+		}
+
+		GpcTableSum("Connected", 1);
+
+		continue;
+
+		GpcTableEnter("Established");
+
+		if (s != NULL)
+		{
+			UCHAR c;
+			Recv(s, &c, 1, 0);
+			GpcTableSum("Disconnected", 1);
+			Disconnect(s);
+			ReleaseSock(s);
+		}
+
+		GpcTableExit("Established");
+	}
+}
+
+void tcp_stress_test(UINT num, char **arg)
+{
+	if (num < 2)
+	{
+		Print("tcp_stress_test <target> <port>\n");
+		return;
+	}
+
+	char hostname[MAX_PATH] = CLEAN;
+	StrCpy(hostname, sizeof(hostname), arg[0]);
+	UINT port = ToInt(arg[1]);
+
+	IP ip = CLEAN;
+	if (GetIP(&ip, hostname) == false)
+	{
+		Print("Error: hostname '%s' not found.\n", hostname);
+		return;
+	}
+
+	Print("hostname '%s': IP = %r\n", hostname, &ip);
+
+	GpcStartPrintStat(500);
+
+	UINT i;
+	for (i = 0;i < 1000;i++)
+	{
+		TCP_STRESS_TEST_CTX *ctx = ZeroMalloc(sizeof(TCP_STRESS_TEST_CTX));
+		CopyIP(&ctx->Ip, &ip);
+		ctx->Port = port;
+
+		THREAD *t = NewThread(tcp_stress_test_thread, ctx);
+
+		ReleaseThread(t);
+	}
+
+	//SleepThread(INFINITE);
 }
 
 void proxykeepalive(UINT num, char **arg)
@@ -1144,10 +1461,47 @@ void DuWfpTest();
 
 void DuWfpTest2();
 
+void thproc(THREAD *t, void *param)
+{
+#ifdef OS_WIN32
+	LIST *c = MsNewSidToUsernameCache();
+	UINT i;
+	for (i = 0;;i++)
+	{
+		LIST *o = MsGetThinFwList(c, 0);
+
+		FreeDiffList(o);
+
+		//char tmp[MAX_SIZE] = CLEAN;
+		//IP ip = CLEAN;
+		//StrToIP(&ip, "192.168.3.2");
+		//GetHostNameInner(tmp, sizeof(tmp), &ip, GETHOSTNAME_USE_DNS_API);
+	}
+	MsFreeSidToUsernameCache(c);
+#endif // OS_WIN32
+}
+
 void test(UINT num, char **arg)
 {
 #ifdef OS_WIN32
 
+	if (false)
+	{
+		UINT i;
+		LIST *o = NewThreadList();
+		for (i = 0;i < 32;i++)
+		{
+			THREAD *t = NewThread(thproc, NULL);
+			AddThreadToThreadList(o, t);
+			ReleaseThread(t);
+		}
+
+		FreeThreadList(o);
+
+		//SleepThread(INFINITE);
+
+		return;
+	}
 
 	if (false)
 	{
@@ -1277,6 +1631,8 @@ TEST_LIST test_list[] =
 	{"hello", hello_test},
 	{"vdi", vdi_admin_util},
 	{"proxykeepalive", proxykeepalive},
+	{"heavy", heavy_test},
+	{"tcp_stress_test", tcp_stress_test},
 };
 
 // テスト関数
@@ -1287,7 +1643,7 @@ void TestMain(char *cmd)
 	bool exit_now = false;
 
 	Print("Hamster Tester\n");
-	OSSetHighPriority();
+	//OSSetHighPriority();
 
 	while (true)
 	{

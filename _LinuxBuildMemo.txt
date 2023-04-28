@@ -10,6 +10,10 @@ git clone  --recursive git@github.com:IPA-CyberLab/IPA-DN-ThinLib-NativeUtilApp.
 (cd ~/IPA-DN-ThinLib-NativeUtilApp/ && (cd $(git rev-parse --show-toplevel) && git pull origin master && git submodule update --init --recursive)) && cd ~/IPA-DN-ThinLib-NativeUtilApp/src/ && make -j 10 && bin/NativeUtilApp
 
 
+### ビルドおよび実行 (Heavy Thread Test)
+(cd ~/IPA-DN-ThinLib-NativeUtilApp/ && (cd $(git rev-parse --show-toplevel) && git pull origin master && git submodule update --init --recursive)) && cd ~/IPA-DN-ThinLib-NativeUtilApp/src/ && make -j 10 && bin/NativeUtilApp heavy 10000
+
+
 ### UDP ベンチマークテストの実行 (NW に負荷をかけるため、注意して実行すること)
 (cd ~/IPA-DN-ThinLib-NativeUtilApp/ && (cd $(git rev-parse --show-toplevel) && git pull origin master && git submodule update --init --recursive)) && cd ~/IPA-DN-ThinLib-NativeUtilApp/src/ && make -j 10 && ~/IPA-DN-ThinLib-NativeUtilApp/src/bin/NativeUtilApp udpbench 10.21.1.2 5454 32
 
