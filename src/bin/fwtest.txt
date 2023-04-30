@@ -48,14 +48,14 @@ ReportMailAuthType          0
 
 ReportMailFrom              noreply@softether.co.jp
 ReportMailTo                @gmail.com
-ReportMailSubjectPrefix     [ThinFirewall $hostname]
+ReportMailSubjectPrefix     [ThinFirewall $hostname $macaddress]
 
 
 ReportSyslogOnlyWhenLocked    false
 
 ReportSyslogHost            10.21.2.168
 ReportSyslogPort            514
-ReportSyslogPrefix          [ThinFirewall-$subsystemname $hostname]
+ReportSyslogPrefix          $hostname($macaddress) ThinFirewall:
 
 
 ReportSaveToDir             true
@@ -250,10 +250,10 @@ trusted_client C:\Program Files (x86)\Zscaler\ZSATrayManager\ZSATrayManager.exe
 ## さらに限定することも可能である。
 
 # Protocol  Direction  Type  Action  RemoteIP        RemotePort   LocalPort
-tcp         in         all   permit  192.168.99.0/24 *            8888
-udp         in         all   permit  192.168.99.0/24 *            1234-5678
-tcp         in         all   permit  2001:1234::/64  *            443
-udp         in         all   permit  2001:1234::/64  *            1234-5678
+#tcp         in         all   permit  192.168.99.0/24 *            8888
+#udp         in         all   permit  192.168.99.0/24 *            1234-5678
+#tcp         in         all   permit  2001:1234::/64  *            443
+#udp         in         all   permit  2001:1234::/64  *            1234-5678
 
 
 ## ----------------------------------------------------------------------
