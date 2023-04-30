@@ -34,7 +34,8 @@ GetNetworkInfoIntervalMsec  300000
 
 IgnoreDNSoverTCPSession     true
 
-ReportMailIntervalMsec      5000
+ReportMailIntervalMsec      0
+ReportMailMaxSize           200000
 
 
 ReportMailOnlyWhenLocked    false
@@ -48,7 +49,7 @@ ReportMailAuthType          0
 
 ReportMailFrom              noreply@softether.co.jp
 ReportMailTo                @gmail.com
-ReportMailSubjectPrefix     [ThinFirewall $hostname $macaddress]
+ReportMailSubjectPrefix     [ThinFirewall: $hostname]
 
 
 ReportSyslogOnlyWhenLocked    false
