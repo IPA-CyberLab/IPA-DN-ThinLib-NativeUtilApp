@@ -1487,6 +1487,13 @@ void test(UINT num, char **arg)
 
 	if (false)
 	{
+		UINT a, b, c, d;
+		MsGetFileVersionW(L"c:\\windows\\System32\\ntoskrnl.exe", &a, &b, &c, &d);
+		return;
+	}
+
+	if (false)
+	{
 		UINT i;
 		LIST *o = NewThreadList();
 		for (i = 0;i < 32;i++)
@@ -1558,7 +1565,13 @@ void test(UINT num, char **arg)
 	{
 		wchar_t tmp[MAX_PATH] = CLEAN;
 		CombinePathW(tmp, sizeof(tmp), MsGetExeDirNameW(), L"fwtest.txt");
-		TF_SERVICE *svc = TfStartService(TF_SVC_MODE_SYSTEMMODE, tmp);
+
+		TF_STARTUP_SETTINGS settings = CLEAN;
+
+		settings.Mode = TF_SVC_MODE_USERNAME;
+		UniStrCpy(settings.SettingFileName, sizeof(settings.SettingFileName), tmp);
+
+		TF_SERVICE *svc = TfStartService(&settings);
 
 		Print("QUIT: ");
 

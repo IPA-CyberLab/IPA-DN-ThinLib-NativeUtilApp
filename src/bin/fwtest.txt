@@ -3,63 +3,69 @@
 ## IPA シン・テレワークシステムサーバー付属
 ## 「シン・ファイアウォールシステム」
 
-Enable                      true
+Enable                          true
 
 
-WatchOnlyWhenLocked         false
+WatchOnlyWhenLocked             false
+
+InputIdleTimerMsec              2000
+
+SettingReloadIntervalMsec       1000
 
 
-SettingReloadIntervalMsec   1000
+WatchPollingIntervalMsec        250
 
 
-WatchPollingIntervalMsec    250
+EnableWatchRdp                  true
+
+EnableWatchDns                  true
 
 
-EnableWatchRdp              true
+EnableWatchTcp                  true
+EnableTcpHostnameLookup         true
+HostnameLookupTimeoutMsec       500
 
-EnableWatchDns              true
-
-
-EnableWatchTcp              true
-EnableTcpHostnameLookup     true
-HostnameLookupTimeoutMsec   500
-
-EnableWatchProcess          true
-IncludeProcessCommandLine   1
+EnableWatchProcess              true
+IncludeProcessCommandLine       true
 
 
-EnableFirewall              false
+EnableFirewall                  true
+EnableFirewallOnlyWhenLocked    true
 
-GetNetworkInfoIntervalMsec  300000
+GetNetworkInfoIntervalMsec      300000
 
-IgnoreDNSoverTCPSession     true
+IgnoreDNSoverTCPSession         true
 
-ReportMailIntervalMsec      0
-ReportMailMaxSize           200000
+ReportMaxQueueLength            1024
 
-
-ReportMailOnlyWhenLocked    false
-
-ReportMailHost              192.168.1.48
-ReportMailPort              587
-ReportMailUsername          
-ReportMailPassword          
-ReportMailSslType           0
-ReportMailAuthType          0
-
-ReportMailFrom              noreply@softether.co.jp
-ReportMailTo                @gmail.com
-ReportMailSubjectPrefix     [ThinFirewall: $hostname]
+ReportMailIntervalMsec          5000
+ReportMailMaxSize               200000
 
 
-ReportSyslogOnlyWhenLocked    false
+ReportMailOnlyWhenLocked        false
 
-ReportSyslogHost            10.21.2.168
-ReportSyslogPort            514
-ReportSyslogPrefix          $hostname($macaddress) ThinFirewall:
+ReportMailHost                  192.168.1.48
+ReportMailPort                  587
+ReportMailUsername              
+ReportMailPassword              
+ReportMailSslType               0
+ReportMailAuthType              0
+
+ReportMailFrom                  noreply@softether.co.jp
+ReportMailTo                    xxxx@gmail.com
+ReportMailSubjectPrefix         [ThinFirewall: $hostname]
 
 
-ReportSaveToDir             true
+ReportSyslogOnlyWhenLocked      false
+
+ReportSyslogHost                10.21.2.168
+ReportSyslogPort                514
+ReportSyslogPrefix              $hostname:$macaddress ThinFirewall:
+
+
+ReportSaveToDir                 true
+
+ReportAppendUniqueId            false
 
 
 
@@ -602,6 +608,8 @@ udp         in         all   deny    any6            *            *
 
 icmp        in         all   permit  any4
 icmp        in         all   permit  any6
+
+icmp        out        all   deny  8.8.8.8
 
 icmp        out        all   permit  any4
 icmp        out        all   permit  any6
