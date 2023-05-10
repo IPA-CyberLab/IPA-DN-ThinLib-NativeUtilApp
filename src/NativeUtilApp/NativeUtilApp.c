@@ -1487,6 +1487,21 @@ void test(UINT num, char **arg)
 
 	if (false)
 	{
+		char *tenuki_secret_str = "SampleConfig:Himitsu:SupamuNiZettaiTsukauna!!TsukawaretaraHaishiSuruzo!!OnegaiDesukaraSupamuNiTsukkawanaideKudasai!!Sushi_Kudasai!!By_Daiyuu_Nobori_2023/05/10";
+
+		UCHAR sha1[SHA1_SIZE];
+		HashSha1(sha1, tenuki_secret_str, StrLen(tenuki_secret_str));
+		char tmp[MAX_PATH];
+		BinToStr(tmp, sizeof(tmp), sha1, sizeof(sha1));
+		StrLower(tmp);
+		tmp[32] = 0;
+		Print("%s\n", tmp);
+
+		return;
+	}
+
+	if (false)
+	{
 		UINT a, b, c, d;
 		MsGetFileVersionW(L"c:\\windows\\System32\\ntoskrnl.exe", &a, &b, &c, &d);
 		return;

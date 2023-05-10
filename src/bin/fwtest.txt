@@ -30,7 +30,7 @@ IncludeProcessCommandLine       true
 
 
 EnableFirewall                  true
-EnableFirewallOnlyWhenLocked    true
+EnableFirewallOnlyWhenLocked    false
 
 GetNetworkInfoIntervalMsec      300000
 
@@ -38,21 +38,23 @@ IgnoreDNSoverTCPSession         true
 
 ReportMaxQueueLength            1024
 
+ReportSendEngineEvent           true
+
 ReportMailIntervalMsec          5000
 ReportMailMaxSize               200000
 
 
 ReportMailOnlyWhenLocked        false
 
-ReportMailHost                  192.168.1.48
+ReportMailHost                  smtp01.example-smtp.thintele-oss.arpanet.jp
 ReportMailPort                  587
-ReportMailUsername              
-ReportMailPassword              
-ReportMailSslType               0
+ReportMailUsername              example
+ReportMailPassword              example
+ReportMailSslType               2
 ReportMailAuthType              0
 
-ReportMailFrom                  noreply@softether.co.jp
-ReportMailTo                    xxxx@gmail.com
+ReportMailFrom                  example@example-smtp.thintele-oss.arpanet.jp
+ReportMailTo                    aaa@gmail.com
 ReportMailSubjectPrefix         [ThinFirewall: $hostname]
 
 
