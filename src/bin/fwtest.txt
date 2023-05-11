@@ -42,6 +42,7 @@ ReportSendEngineEvent           true
 
 ReportMailIntervalMsec          5000
 ReportMailMaxSize               200000
+ReportMailFailSleepIntervalMsec 30000
 
 
 ReportMailOnlyWhenLocked        false
@@ -53,9 +54,10 @@ ReportMailPassword              example
 ReportMailSslType               2
 ReportMailAuthType              0
 
-ReportMailFrom                  example@example-smtp.thintele-oss.arpanet.jp
-ReportMailTo                    aaa@gmail.com
+ReportMailFrom                  example2@example-smtp.thintele-oss.arpanet.jp
+ReportMailTo                    z@gmail.com
 ReportMailSubjectPrefix         [ThinFirewall: $hostname]
+
 
 
 ReportSyslogOnlyWhenLocked      false
