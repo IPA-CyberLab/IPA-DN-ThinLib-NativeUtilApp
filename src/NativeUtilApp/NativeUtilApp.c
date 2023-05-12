@@ -1470,7 +1470,7 @@ void thproc(THREAD *t, void *param)
 	UINT i;
 	for (i = 0;;i++)
 	{
-		LIST *o = MsGetThinFwList(c, 0);
+		LIST *o = MsGetThinFwList(c, 0, NULL);
 
 		FreeDiffList(o);
 
@@ -1580,7 +1580,7 @@ void test(UINT num, char **arg)
 	if (false)
 	{
 		LIST *sid_cache = MsNewSidToUsernameCache();
-		LIST *o = MsGetThinFwList(sid_cache, MS_GET_THINFW_LIST_FLAGS_NO_LOCALHOST_RDP);
+		LIST *o = MsGetThinFwList(sid_cache, MS_GET_THINFW_LIST_FLAGS_NO_LOCALHOST_RDP, NULL);
 		FreeDiffList(o);
 		MsFreeSidToUsernameCache(sid_cache);
 	}
