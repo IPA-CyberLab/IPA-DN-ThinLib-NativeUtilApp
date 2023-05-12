@@ -1461,6 +1461,8 @@ void DuWfpTest();
 
 void DuWfpTest2();
 
+void DuWfpTest3();
+
 void thproc(THREAD *t, void *param)
 {
 #ifdef OS_WIN32
@@ -1484,6 +1486,12 @@ void thproc(THREAD *t, void *param)
 void test(UINT num, char **arg)
 {
 #ifdef OS_WIN32
+
+	if (false)
+	{
+		DuWfpTest3();
+		return;
+	}
 
 	if (false)
 	{
