@@ -1489,7 +1489,13 @@ void test(UINT num, char **arg)
 
 	if (false)
 	{
-		DuWfpTest3();
+		wchar_t tmp[MAX_PATH] = CLEAN;
+
+		MsConvertDosDevicePathToFullPath(tmp, sizeof(tmp), L"\\device\\harddiskvolume4\\windows\\syswow64\\ipconfig.exe");
+		//MsConvertDosDevicePathToFullPath(tmp, sizeof(tmp), L"\\device\\harddiskvolume4\\program files (x86)\\google\\chrome\\application\\chrome.exe");
+		//MsConvertDosDevicePathToFullPath(tmp, sizeof(tmp), L"\\\\?\\HarddiskVolume4\\Windows\\");
+
+		UniPrint(L"%s\n", tmp);
 		return;
 	}
 
