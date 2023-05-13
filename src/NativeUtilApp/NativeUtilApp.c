@@ -1491,19 +1491,19 @@ void test(UINT num, char **arg)
 	{
 		MS_EVENTREADER_SESSION *s = MsNewEventReaderSession();
 
-		while (true)
+		//while (true)
 		{
 			LIST *o = MsReadEvents(s, L"Application", 1000, 0);
 
-			//UINT i;
-			//for (i = 0;i < LIST_NUM(o);i++)
-			//{
-			//	MS_EVENTITEM *e = LIST_DATA(o, i);
-			//	char dtstr[64] = CLEAN;
-			//	GetDateTimeStr64(dtstr, sizeof(dtstr), SystemToLocal64(e->SystemTime64));
-			//	UniPrint(L"%I64u %u %S %s %s\\%s %s\n",
-			//		e->Index, e->EventId, dtstr, e->ProviderName, e->DomainName, e->Username, e->Message);
-			//}
+			UINT i;
+			for (i = 0;i < LIST_NUM(o);i++)
+			{
+				MS_EVENTITEM *e = LIST_DATA(o, i);
+				char dtstr[64] = CLEAN;
+				GetDateTimeStr64(dtstr, sizeof(dtstr), SystemToLocal64(e->SystemTime64));
+				UniPrint(L"%I64u %u %S %s %s\\%s %s\n",
+					e->Index, e->EventId, dtstr, e->ProviderName, e->DomainName, e->Username, e->Message);
+			}
 
 			FreeListMemItemsAndReleaseList(o);
 
