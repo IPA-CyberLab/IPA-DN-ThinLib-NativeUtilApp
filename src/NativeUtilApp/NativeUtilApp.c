@@ -1491,23 +1491,47 @@ void test(UINT num, char **arg)
 	{
 		MS_EVENTREADER_SESSION *s = MsNewEventReaderSession();
 
-		//while (true)
-		{
-			LIST *o = MsReadEvents(s, L"Application", 1000, 0);
+		LIST *o = MsWatchEvents(s, L"System;Application", 100);
 
-			UINT i;
-			for (i = 0;i < LIST_NUM(o);i++)
-			{
-				MS_EVENTITEM *e = LIST_DATA(o, i);
-				char dtstr[64] = CLEAN;
-				GetDateTimeStr64(dtstr, sizeof(dtstr), SystemToLocal64(e->SystemTime64));
-				UniPrint(L"%I64u %u %S %s %s\\%s %s\n",
-					e->Index, e->EventId, dtstr, e->ProviderName, e->DomainName, e->Username, e->Message);
-			}
+		UINT i;
+		for (i = 0;i < LIST_NUM(o);i++)
+		{
+			MS_EVENTITEM *e = LIST_DATA(o, i);
+			char dtstr[64] = CLEAN;
+			GetDateTimeStr64(dtstr, sizeof(dtstr), SystemToLocal64(e->SystemTime64));
+			UniPrint(L"%s, %I64u %u %S %s %s\\%s %s\n",
+				e->EventLogName, e->Index, e->EventId, dtstr, e->ProviderName, e->DomainName, e->Username, e->Message);
+		}
+
+		FreeListMemItemsAndReleaseList(o);
+
+		MsFreeEventReaderSession(s);
+		return;
+	}
+
+	if (true)
+	{
+		MS_EVENTREADER_SESSION *s = MsNewEventReaderSession();
+
+		while (true)
+		{
+			LIST *o = MsReadEvents(s, L"Application", 100);
+
+			//UINT i;
+			//for (i = 0;i < LIST_NUM(o);i++)
+			//{
+			//	MS_EVENTITEM *e = LIST_DATA(o, i);
+			//	char dtstr[64] = CLEAN;
+			//	GetDateTimeStr64(dtstr, sizeof(dtstr), SystemToLocal64(e->SystemTime64));
+			//	UniPrint(L"%I64u %u %S %s %s\\%s %s\n",
+			//		e->Index, e->EventId, dtstr, e->ProviderName, e->DomainName, e->Username, e->Message);
+			//}
 
 			FreeListMemItemsAndReleaseList(o);
 
 			//Print("%u %u\n", LIST_NUM(s->MsSidCache), LIST_NUM(s->ProviderMetadataCache));
+
+			SleepThread(100);
 		}
 		MsFreeEventReaderSession(s);
 		return;
