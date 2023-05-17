@@ -1487,7 +1487,7 @@ void test(UINT num, char **arg)
 {
 #ifdef OS_WIN32
 
-	if (true)
+	if (false)
 	{
 		MS_EVENTREADER_SESSION *s = MsNewEventReaderSession();
 
@@ -1509,7 +1509,7 @@ void test(UINT num, char **arg)
 		return;
 	}
 
-	if (true)
+	if (false)
 	{
 		MS_EVENTREADER_SESSION *s = MsNewEventReaderSession();
 
