@@ -32,6 +32,8 @@
 ## 
 ## ★☆ 非常に重要なフラグです。必ず true に変更してください。
 ## false のままの場合、以下の一切の設定は意味をなしません。
+## この値が false の場合、この設定ファイルのすべての設定
+## は何らの意味も有さなくなります。
 
 Enable                          true
 
@@ -80,6 +82,14 @@ GetNetworkInfoIntervalMsec      300000
 ## false を設定すると、ふるまいウォッチ機能が常時動作します。
 ## (ユーザーモードでシン・テレワークシステムに係るサービスが動作している
 ##  場合は、コンピュータ画面が一定時間操作されていない場合も含む)
+## 
+## この機能の意義は、日中アクティブに Windows 上でさまざまな操作をユーザー
+## が行なっている際は、色々なプロセスが起動・終了し、様々な通信が飛び交う
+## ことは当然なので、その際に大量に発生するログを一々記録メール送信する
+## ことを避けることにあります。つまり、PC がロックされているような離席時
+## にのみ発生するイベントだけを不審なものと捉えて、そのようなイベント
+## のみをメール等で通知したいという場合に、このフラグを true にすると
+## 良いのです。
 
 WatchOnlyWhenLocked             false
 
@@ -362,6 +372,21 @@ ReportMailFailSleepIntervalMsec 30000
 ## 必ず、お使いの ISP や社内システムやクラウドサービスの SMTP 送信用
 ## メールサーバーを指定してください。
 ## IP アドレスでも指定可能です。プライベート IP も指定可能です。
+## 
+## 著名なクラウド型メールサービスにおける SMTP の設定値は、以下を
+## 参考にしてください。ただし、以下のクラウドサービス側の SMTP サーバー
+## の実装が将来変更されたときにも、永続的に利用できることを保証する
+## ものではありません。クラウドサービスや ISP の SMTP サーバーで
+## あるとき突然に不具合が発生するようになった場合は、それらの
+## SMTP サーバー管理者による設定や実装の変更が原因である可能性
+## が高いため、SMTP サーバー管理者にお問い合わせください。
+## 
+## 米国 Google 社の 「Gmail」 を使用する場合:
+## https://support.google.com/mail/answer/7126229?hl=ja
+## ※ アプリ用のログインパスワードを生成する必要があります。
+## 
+## 米国 Microsoft 社の 「Office 365 (Hotmail, Outlook)」 を使用する場合:
+## https://docs.microsoft.com/ja-jp/exchange/mail-flow-best-practices/how-to-set-up-a-multifunction-device-or-application-to-send-email-using-microsoft-365-or-office-365
 
 ReportMailHost                  smtp01.example-smtp.thintele-oss.arpanet.jp
 
@@ -408,9 +433,12 @@ ReportMailAuthType              0
 
 
 #### 3.2 - syslog 送信機能
+## (ReportSyslogHost がコメントアウトされていますので、そのコメントアウト
+##  を解除してください。コメントアウトされた状態では、syslog は送付
+##  されません。)
 
 ## 送信先 syslog サーバーの IP アドレスまたはホスト名
-ReportSyslogHost                10.21.2.168
+#ReportSyslogHost                1.2.3.4
 
 ## 送信先 syslog サーバーのポート番号
 ReportSyslogPort                514
@@ -531,6 +559,9 @@ ReportSendEngineEvent           true
 ## 制約事項: シン・ファイアウォールシステムのプロセスがシステムサービス
 ## として管理者権限で動作している場合のみ稼働します。それ以外の場合は
 ## 本機能は稼働しません。
+## 
+## この値が false の場合、この設定ファイルのここより下の部分の設定
+## は何らの意味も有さなくなります。
 
 EnableFirewall                  true
 
