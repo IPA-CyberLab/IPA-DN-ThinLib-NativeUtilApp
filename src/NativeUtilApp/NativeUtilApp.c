@@ -1489,6 +1489,18 @@ void test(UINT num, char **arg)
 
 	if (false)
 	{
+		char tmp[128] = CLEAN;
+		UINT64 boottime = MsGetWindowsBootSystemTime();
+		GetDateTimeStr64(tmp, sizeof(tmp), SystemToLocal64(boottime));
+		Print("%s\n", tmp);
+		Print("%I64u\n", MsGetTickCount64());
+		Print("%I64u\n", (UINT64)GetTickCount());
+
+		return;
+	}
+
+	if (false)
+	{
 		MS_EVENTREADER_SESSION *s = MsNewEventReaderSession();
 
 		LIST *o = MsWatchEvents(s, L"System;Application", 100);
