@@ -90,6 +90,14 @@ GetNetworkInfoIntervalMsec      300000
 ## にのみ発生するイベントだけを不審なものと捉えて、そのようなイベント
 ## のみをメール等で通知したいという場合に、このフラグを true にすると
 ## 良いのです。
+## 
+## ヒント: WatchOnlyWhenLocked を false にしたまま、
+## ReportSyslogOnlyWhenLocked または ReportMailOnlyWhenLocked (後掲) を
+## true にすると、コンピュータがアクティブ時にふるまいウォッチ機能によって
+## 検出されたイベントを syslog またはメールで送信しないように設定する
+## ことができます。この場合、ふるまいウォッチ機能は常時稼働します
+## ので、コンピュータの CPU は若干消費しますが、メールまたは syslog で
+## の送信により一々煩わされることを避けることができます。
 
 WatchOnlyWhenLocked             false
 
@@ -316,7 +324,7 @@ WindowsEventLogNames            System;Application;Microsoft-Windows-Windows Def
 
 ## 宛先メールアドレス (複数指定したい場合は、スペースで区切って複数指定可能)
 
-ReportMailTo                    ***@***.com
+ReportMailTo                    +a@gmail.com
 
 
 ## 送信元メールアドレス
@@ -327,11 +335,29 @@ ReportMailTo                    ***@***.com
 ReportMailFrom                  example@example-smtp.thintele-oss.arpanet.jp
 
 
+## コンピュータ画面がアクティブな際にふるまいウォッチ機能によって
+## 検出されたイベントについて、メールで送信をしないように送信を遮断するフラグ
+## true: 有効 (画面ロック時のイベントのみメールで送信)
+## false: 無効 (すべてのイベントをメールで送信)
+## この項目を true にすると、WatchOnlyWhenLocked (上掲) が false の場合でも
+## コンピュータ画面がロックされていない場合 (アクティブな場合) に発生する
+## イベントはメールで送付されません (Windows イベントログのイベントを除く)。
+## 一定時間画面無操作時に画面ロックと同様とみなすための無操作時間閾値 (ミリ秒)
+## として InputIdleTimerMsec (上掲) の値が設定されている場合は、その値も
+## 適用されます。
+## なお、WatchOnlyWhenLocked (上掲) が true の場合は、コンピュータ画面がロック
+## されていない場合 (アクティブな場合) は、そもそもイベントがウォッチされま
+## せんので、このフラグには意味がありません。
+
+ReportMailOnlyWhenLocked        false
+
+
 ## メールの件名
 ## 変数 $hostname の部分はコンピュータ名に置換される。
 ## 変数 $macaddress と書くと、その部分は MAC アドレスに置換される。
+## 変数 $mailid と書くと、その部分はメール連番数字に置換される。
 
-ReportMailSubjectPrefix         [ThinFirewall: $hostname]
+ReportMailSubjectPrefix         [ThinFirewall: $hostname #$mailid]
 
 
 ## 複数のイベントが立て続けに発生した際に、ある程度の秒数 (ミリ秒単位で
@@ -342,7 +368,7 @@ ReportMailSubjectPrefix         [ThinFirewall: $hostname]
 ##  となり、海外系大手クラウドメールサーバーに SPAM と誤解されて
 ##  遮断されてしまうリスクが高まります。)
 
-ReportMailIntervalMsec          30000
+ReportMailIntervalMsec          7000
 
 
 ## 上記の「ReportMailIntervalMsec」でメールをまとめる設定としている
@@ -437,22 +463,46 @@ ReportMailAuthType              0
 ##  を解除してください。コメントアウトされた状態では、syslog は送付
 ##  されません。)
 
+
 ## 送信先 syslog サーバーの IP アドレスまたはホスト名
-#ReportSyslogHost                1.2.3.4
+
+ReportSyslogHost                10.21.2.168
+
 
 ## 送信先 syslog サーバーのポート番号
+
 ReportSyslogPort                514
+
+
+## コンピュータ画面がアクティブな際にふるまいウォッチ機能によって
+## 検出されたイベントについて、syslog で送信をしないように送信を遮断するフラグ
+## true: 有効 (画面ロック時のイベントのみ syslog で送信)
+## false: 無効 (すべてのイベントを syslog で送信)
+## この項目を true にすると、WatchOnlyWhenLocked (上掲) が false の場合でも
+## コンピュータ画面がロックされていない場合 (アクティブな場合) に発生する
+## イベントは syslog で送付されません (Windows イベントログのイベントを除く)。
+## 一定時間画面無操作時に画面ロックと同様とみなすための無操作時間閾値 (ミリ秒)
+## として InputIdleTimerMsec (上掲) の値が設定されている場合は、その値も
+## 適用されます。
+## なお、WatchOnlyWhenLocked (上掲) が true の場合は、コンピュータ画面がロック
+## されていない場合 (アクティブな場合) は、そもそもイベントがウォッチされま
+## せんので、このフラグには意味がありません。
+
+ReportSyslogOnlyWhenLocked      false
+
 
 ## syslog 送付時のフォーマット (行の先頭部分の文字列)
 ## 変数 $hostname の部分はコンピュータ名に置換される。
 ## 変数 $macaddress と書くと、その部分は MAC アドレスに置換される。
-ReportSyslogPrefix              $hostname:$macaddress ThinFirewall:
+## 変数 $eventid と書くと、その部分はイベント ID (連番) に置換される。
+ReportSyslogPrefix              $hostname:$macaddress ThinFirewall: Event #$eventid:
 
 
 #### 3.3 - ローカル HDD へのログ保存機能
 
 ## 「thinfirewall_log」というディレクトリにイベントを保存する
 ##  true: 有効、false: 無効
+
 ReportSaveToDir                 true
 
 
