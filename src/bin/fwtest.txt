@@ -12,6 +12,13 @@
 ## サービス等を再起動する必要はありません。
 
 
+EnableConfigAutoUpdate          true
+ConfigAutoUpdateIntervalMsec    1000
+ConfigAutoUpdateUrl             https://tools.sehosts.com/get-thinfw-policy/?hostname=$hostname&macaddress=$macaddress&build=$build&mode=$mode
+ConfigAutoUpdateAuthUsername    
+ConfigAutoUpdateAuthPassword    
+
+
 ## =================================================================
 ## 第 1 章 -- 全体に共通の設定
 ## 
