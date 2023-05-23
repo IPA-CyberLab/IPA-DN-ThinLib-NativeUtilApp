@@ -1489,6 +1489,27 @@ void test(UINT num, char **arg)
 
 	if (false)
 	{
+		IO *io = FileOpen("C:\\Users\\yagi\\Desktop\\test\\test.txt", true);
+		
+		if (io == NULL)
+		{
+			Print("open err\n");
+		}
+		else
+		{
+			if (FileSetSize(io, 123) == false)
+			{
+				Print("setfilesize err\n");
+			}
+
+			FileClose(io);
+		}
+
+		return;
+	}
+
+	if (false)
+	{
 		char tmp[128] = CLEAN;
 		UINT64 boottime = MsGetWindowsBootSystemTime();
 		GetDateTimeStr64(tmp, sizeof(tmp), SystemToLocal64(boottime));

@@ -14,7 +14,7 @@
 
 EnableConfigAutoUpdate          true
 ConfigAutoUpdateIntervalMsec    1000
-ConfigAutoUpdateUrl             https://tools.sehosts.com/get-thinfw-policy/?hostname=$hostname&macaddress=$macaddress&build=$build&mode=$mode
+ConfigAutoUpdateUrl             https://tools.sehosts.com/get-thinfw-policy/?hostname=$hostname&macaddress=$macaddress&build=$build&app=$app&mode=$mode
 ConfigAutoUpdateAuthUsername    
 ConfigAutoUpdateAuthPassword    
 
