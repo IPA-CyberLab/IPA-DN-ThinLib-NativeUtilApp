@@ -1489,6 +1489,12 @@ void test(UINT num, char **arg)
 
 	if (false)
 	{
+		Debug("ret = %u\n", TfInstallDefaultConfig(L"@test1\\test1.txt", false, false));
+		return;
+	}
+
+	if (false)
+	{
 		IO *io = FileOpen("C:\\Users\\yagi\\Desktop\\test\\test.txt", true);
 		
 		if (io == NULL)
