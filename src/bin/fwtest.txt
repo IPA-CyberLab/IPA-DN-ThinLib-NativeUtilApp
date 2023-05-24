@@ -1277,7 +1277,7 @@ icmp        out        all   permit  any6
 ## からダウンロードし、変更点がある場合は自動的にローカルの
 ## ポリシー設定ファイルに上書きし、その内容をリロードして適用します。
 
-EnableConfigAutoUpdate          true
+EnableConfigAutoUpdate          false
 
 
 ## ポリシー設定ファイルの HTTP/HTTPS 経由の更新チェックおよび頻度 (ミリ秒)
@@ -1286,8 +1286,9 @@ EnableConfigAutoUpdate          true
 ## なお、HTTP 経由の更新チェックの動作状況や発生したエラー原因は、
 ## シン・ファイアウォールシステムのログファイルに記録されます。
 ## 正常に更新がなされない場合は、ログファイルをチェックしてみてください。
+## 値が指定されていない場合は、デフォルト値として、3600 秒が使用されます。
 
-ConfigAutoUpdateIntervalMsec    1000
+ConfigAutoUpdateIntervalMsec    3600000
 
 
 ## ポリシー設定ファイルの HTTP/HTTPS 経由の更新チェック先の URL
