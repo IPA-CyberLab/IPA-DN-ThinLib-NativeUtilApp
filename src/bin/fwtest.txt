@@ -1294,7 +1294,7 @@ ConfigAutoUpdateIntervalMsec    1000
 ## ここで指定した URL に対してアクセスが行なわれます。
 ## URL は、http または https のアドレスが指定可能です。
 
-ConfigAutoUpdateUrl             https://tools.sehosts.com/get-thinfw-policya/?hostname=$hostname&macaddress=$macaddress&build=$build&app=$app&mode=$mode
+ConfigAutoUpdateUrl             https://example.org/thinfw-policy/policy.txt?hostname=$hostname&macaddress=$macaddress&build=$build&app=$app&mode=$mode
 
 ## 【ConfigAutoUpdateUrl に関する高度な管理者のためのヒント】
 ## URL 上に任意の CGI プログラムを置いて置くと、クライアント端末ごとに
