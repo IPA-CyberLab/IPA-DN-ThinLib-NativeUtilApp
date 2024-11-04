@@ -2037,6 +2037,8 @@ int main(int argc, char *argv[])
 	char cmd[MAX_SIZE];
 	char *s;
 
+	MayaquaMinimalMode();
+
 	Vars_ApplyActivePatch();
 
 	InitProcessCallOnceEx(true);
