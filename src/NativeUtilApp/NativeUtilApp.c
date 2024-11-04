@@ -1052,7 +1052,7 @@ void ping_test(UINT num, char **arg)
 
 	UINT j;
 
-	UINT64 lasttick = 0;
+	UINT64 lasttick = Tick64();
 	LOCK *lasttick_lock = NewLock();
 
 	for (j = 1;j < num;j++)
