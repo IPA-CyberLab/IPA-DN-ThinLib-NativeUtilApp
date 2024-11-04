@@ -1042,7 +1042,7 @@ void ping_test(UINT num, char **arg)
 
 	UINT timeout_secs = ToInt(arg[0]);
 
-	if (timeout_secs == 0) timeout_secs = 1;
+	if (timeout_secs <= 3) timeout_secs = 3;
 
 	UINT64 timeout_msecs = (UINT64)timeout_secs * 1000ULL;
 
@@ -1073,8 +1073,15 @@ void ping_test(UINT num, char **arg)
 
 	while (true)
 	{
-		Print("%I64u\n", lasttick);
-		SleepThread(1000);
+		UINT64 now = Tick64();
+
+		if ((lasttick + timeout_msecs) >= now)
+		{
+			Print("Timeout occured.\n");
+			_exit(-1);
+		}
+
+		SleepThread(GenRandInterval2(1000, 0));
 	}
 }
 
