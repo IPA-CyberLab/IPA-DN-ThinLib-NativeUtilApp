@@ -1075,7 +1075,7 @@ void ping_test(UINT num, char **arg)
 	{
 		UINT64 now = Tick64();
 
-		if ((lasttick + timeout_msecs) >= now)
+		if ((lasttick + timeout_msecs) < now)
 		{
 			Print("Timeout occured.\n");
 			_exit(-1);
