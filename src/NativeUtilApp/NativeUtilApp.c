@@ -1470,7 +1470,7 @@ void thproc(THREAD *t, void *param)
 	UINT i;
 	for (i = 0;;i++)
 	{
-		LIST *o = MsGetThinFwList(c, 0, NULL);
+		LIST *o = MsGetThinFwList(c, 0, NULL, NULL, NULL, NULL);
 
 		FreeDiffList(o);
 
@@ -1489,7 +1489,7 @@ void test(UINT num, char **arg)
 
 	if (false)
 	{
-		Debug("ret = %u\n", TfInstallDefaultConfig(L"@test1\\test1.txt", false, false));
+		Debug("ret = %u\n", TfInstallDefaultConfig(L"@test1\\test1.txt", false, false, NULL, NULL));
 		return;
 	}
 
@@ -1686,7 +1686,7 @@ void test(UINT num, char **arg)
 	if (false)
 	{
 		LIST *sid_cache = MsNewSidToUsernameCache();
-		LIST *o = MsGetThinFwList(sid_cache, MS_GET_THINFW_LIST_FLAGS_NO_LOCALHOST_RDP, NULL);
+		LIST *o = MsGetThinFwList(sid_cache, MS_GET_THINFW_LIST_FLAGS_NO_LOCALHOST_RDP, NULL, NULL, NULL, NULL);
 		FreeDiffList(o);
 		MsFreeSidToUsernameCache(sid_cache);
 	}
