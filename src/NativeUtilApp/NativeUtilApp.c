@@ -917,6 +917,166 @@ void udpbench_thread(THREAD* thread, void* param)
 #endif	// UNIX_LINUX
 }
 
+bool ping_test_single_try(UINT task_id, char *hostname, bool *timed_out)
+{
+	static bool _dummy1 = false;
+	IP ip = CLEAN;
+
+	if (timed_out == NULL)
+	{
+		timed_out = &_dummy1;
+	}
+
+	IP ip4 = CLEAN;
+	IP ip6 = CLEAN;
+
+	if (GetIP46Ex(&ip4, &ip6, hostname, 0, NULL) == false)
+	{
+		Print("Task %u: Hostname '%s' not found.\n", task_id, hostname);
+		return false;
+	}
+
+	if (IsZeroIP(&ip6) == false)
+	{
+		CopyIP(&ip, &ip6);
+	}
+	else
+	{
+		CopyIP(&ip, &ip4);
+	}
+
+	if (IsZeroIP(&ip))
+	{
+		Print("Task %u: Hostname '%s' not found.\n", task_id, hostname);
+		return false;
+	}
+
+	UCHAR data[64] = CLEAN;
+
+	Rand(data, sizeof(data));
+
+	bool ret = false;
+
+	ICMP_RESULT *result = IcmpEchoSendBySocket(&ip, 0, data, sizeof(data), 1000);
+	if (result == NULL)
+	{
+		Print("Task %u: IcmpEchoSend to %r (%s) error.\n", task_id, &ip, hostname);
+		return false;
+	}
+
+	if (result->Timeout)
+	{
+		Print("Task %u: IcmpEchoSend to %r (%s): Timed out.\n", task_id, &ip, hostname);
+		*timed_out = true;
+	}
+	else if (result->Ok == false)
+	{
+		Print("Task %u: IcmpEchoSend to %r (%s): Returned error.\n", task_id, &ip, hostname);
+	}
+	else
+	{
+		Print("Task %u: IcmpEchoSend to %r (%s): Ok.\n", task_id, &ip, hostname);
+		ret = true;
+	}
+
+	IcmpApiFreeResult(result);
+
+	return ret;
+}
+
+
+
+typedef struct PING_TEST_THREAD_PARAM
+{
+	UINT task_id;
+	char target_hostname[MAX_PATH];
+	LOCK *LastTickLock;
+	UINT64 *LastTick;
+} PING_TEST_THREAD_PARAM;
+
+void ping_test_thread(THREAD *thread, void *param)
+{
+	PING_TEST_THREAD_PARAM *p = (PING_TEST_THREAD_PARAM *)param;
+
+	while (true)
+	{
+		bool timed_out = false;
+
+		UINT64 start_tick = Tick64();
+
+		bool ok = ping_test_single_try(p->task_id, p->target_hostname, &timed_out);
+
+		UINT64 end_tick = Tick64();
+
+		if (ok)
+		{
+			Lock(p->LastTickLock);
+			{
+				*p->LastTick = MAX(*p->LastTick, end_tick);
+			}
+			Unlock(p->LastTickLock);
+		}
+
+		UINT64 spent_time = 0;
+		if (end_tick > start_tick)
+		{
+			spent_time = end_tick - start_tick;
+		}
+
+		if (spent_time < 1000ULL)
+		{
+			UINT sleep_time = (UINT)(1000ULL - spent_time);
+
+			SleepThread(sleep_time);
+		}
+	}
+}
+
+void ping_test(UINT num, char **arg)
+{
+	if (num <= 1)
+	{
+		Print("Usage: ping_test <timeout_secs> <target> [target2] [target3]...\n");
+		return;
+	}
+
+	UINT timeout_secs = ToInt(arg[0]);
+
+	if (timeout_secs == 0) timeout_secs = 1;
+
+	UINT64 timeout_msecs = (UINT64)timeout_secs * 1000ULL;
+
+	bool ok = false;
+
+	LIST *thread_list = NewList(NULL);
+
+	UINT j;
+
+	UINT64 lasttick = 0;
+	LOCK *lasttick_lock = NewLock();
+
+	for (j = 1;j < num;j++)
+	{
+		char *target_hostname = arg[j];
+
+		PING_TEST_THREAD_PARAM *p = ZeroMalloc(sizeof(PING_TEST_THREAD_PARAM));
+
+		p->LastTickLock = lasttick_lock;
+		p->LastTick = &lasttick;
+		StrCpy(p->target_hostname, sizeof(p->target_hostname), target_hostname);
+		p->task_id = j;
+
+		THREAD *t = NewThread(ping_test_thread, p);
+
+		Add(thread_list, t);
+	}
+
+	while (true)
+	{
+		Print("%I64u\n", lasttick);
+		SleepThread(1000);
+	}
+}
 
 void udpbench_test(UINT num, char** arg)
 {
@@ -1769,6 +1929,8 @@ TEST_LIST test_list[] =
 	{"proxykeepalive", proxykeepalive},
 	{"heavy", heavy_test},
 	{"tcp_stress_test", tcp_stress_test},
+
+	{"ping_test", ping_test},
 };
 
 // テスト関数
