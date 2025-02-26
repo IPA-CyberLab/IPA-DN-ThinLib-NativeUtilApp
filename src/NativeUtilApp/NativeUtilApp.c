@@ -1650,9 +1650,79 @@ void thproc(THREAD *t, void *param)
 #endif // OS_WIN32
 }
 
+#ifdef OS_WIN32
+#define AnyBitsSet(a,b)    ( (a) & (b) )
+
+#pragma optimize("", off)
+static volatile ULONG test_global_var1 = 123;
+
+bool test_usermode_simple_function_2()
+{
+	if (AnyBitsSet(test_global_var1, 0x01 | 0x02)) {
+		return(FALSE);
+	}
+	else {
+		return(TRUE);
+	}
+}
+
+bool test_usermode_simple_function_1()
+{
+	volatile ULONG *aho_ptr = &test_global_var1;
+	if (*aho_ptr == 0x1234)
+	{
+		return 0;
+	}
+	return test_usermode_simple_function_2();
+}
+#pragma optimize("", on)
+#endif	// OS_WIN32
+
 void test(UINT num, char **arg)
 {
 #ifdef OS_WIN32
+
+	if (true)
+	{
+		volatile bool ret;
+		HINSTANCE hNtDll = LoadLibraryA("ntdll.dll");
+		BOOL(WINAPI * test_kernel_mode_simple_function_1)() =
+			(BOOL(WINAPI *)())GetProcAddress(hNtDll, "NtIsSystemResumeAutomatic");
+
+		UINT test_count = 10000;
+		while (true)
+		{
+			// User-mode function call
+			{
+				UINT i;
+
+				UINT64 tick_start = TickHighresNano64(true);
+				for (i = 0;i < test_count;i++)
+				{
+					ret = test_usermode_simple_function_1();
+				}
+				UINT64 tick_end = TickHighresNano64(true);
+				double total_time = (double)(tick_end - tick_start) / 1000000000.0f;
+				double one_loop_time = total_time / (double)test_count;
+				Print("User-mode: %.12f\n", one_loop_time);
+			}
+			// Kernel-mode function call
+			{
+				UINT i;
+
+				UINT64 tick_start = TickHighresNano64(true);
+				for (i = 0;i < test_count;i++)
+				{
+					ret = test_kernel_mode_simple_function_1();
+				}
+				UINT64 tick_end = TickHighresNano64(true);
+				double total_time = (double)(tick_end - tick_start) / 1000000000.0f;
+				double one_loop_time = total_time / (double)test_count;
+				Print("Kern-mode: %.12f\n", one_loop_time);
+			}
+			Print("\n");
+		}
+	}
 
 	if (false)
 	{
